@@ -75,11 +75,11 @@ if ON_PAAS:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',  
-            'NAME':     os.environ['decision'],
-            'USER':     os.environ['adminhh9rze7'],
-            'PASSWORD': os.environ['hB3VCyByGnH_'],
-            'HOST':     os.environ['postgresql://$OPENSHIFT_POSTGRESQL_DB_HOST:$OPENSHIFT_POSTGRESQL_DB_PORT'],
-            'PORT':     os.environ['5432'],
+            'NAME':     os.environ['OPENSHIFT_APP_NAME'],
+            'USER':     os.environ['OPENSHIFT_POSTGRESQL_DB_USERNAME'],
+            'PASSWORD': os.environ['OPENSHIFT_POSTGRESQL_DB_PASSWORD'],
+            'HOST':     os.environ['OPENSHIFT_POSTGRESQL_DB_HOST'],
+            'PORT':     os.environ['OPENSHIFT_POSTGRESQL_DB_PORT'],
         }
     }
 else:
