@@ -9,6 +9,11 @@ from datetime import datetime
 
 # Create your models here.
 
+class CustomUser(User):
+    image = ImageField(null=True, blank=True, upload_to="pics/avatars")
+    def getInvites(self):
+        return Invite.objects.all()
+
 class Invite(models.Model):
     SENT = 'SE'
     SEEN = 'SN'
@@ -20,7 +25,7 @@ class Invite(models.Model):
         (ACCEPTED, u'Akceptovaná'),
         (DECLINED, u'Odmietnutá'),
     )
-    user = ForeignKey(User)
+    user = ForeignKey(CustomUser)
     decision = ForeignKey('Decision')
     state = CharField(max_length=2, choices=STATE_CHOICES, default="SE")
     
@@ -37,19 +42,29 @@ class Decision(models.Model):
     )
     name = CharField(max_length=200)
     description = CharField( max_length=200, blank=True)
-    image = ImageField(null=True, blank=True)
+    image = ImageField(null=True, blank=True, upload_to="pics/decision")
     state = CharField(max_length=2, choices=STATE_CHOICES, default="NE")
     published = DateField(default=datetime.now())
     stage_one_date = DateField(null=True, blank=True)
     stage_two_date = DateField(null=True, blank=True)
+    def getCriterias(self):
+        return self.criteria_variant_set.all().filter(crit_var=False)
+    def getVariants(self):
+        return self.criteria_variant_set.all().filter(crit_var=True)
+    def getInvited(self):
+        return self.invite_set.all().filter(state__in=["SE","SN"])
+    def getMembers(self):
+        return self.invite_set.all().filter(state="AC")
+    def getUninvited(self):
+        return CustomUser.objects.all().exclude(invite__decision__pk=self.pk)
     def __unicode__(self):
-        return self.get_state_value() + "_" + self.name
+        return self.get_state_display() + "_" + self.name
     
 class Criteria_Variant(models.Model):
     decision = ForeignKey(Decision)
     name = CharField(max_length=200)
     description = CharField(max_length=200, blank=True)
-    image = ImageField(null=True, blank=True)
+    image = ImageField(null=True, blank=True, upload_to="pics/critvar")
     crit_var = BooleanField(default=None)
     def __unicode__(self):
         return self.decision.__unicode__()+"_"+("Variant_" if self.crit_var else "Criteria_") +self.name
@@ -67,7 +82,7 @@ class Vote(models.Model):
         (MORE_YES, u'Skôr áno'),
         (DEFINETLY_YES, u'Určite áno'),
     )
-    user = ForeignKey(User)
+    user = ForeignKey(CustomUser)
     crit_var = ForeignKey(Criteria_Variant)
     value = CharField(max_length=2, choices=VOTE_CHOICES)
     def __unicode__(self):

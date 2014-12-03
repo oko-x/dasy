@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+	<h1>{{ object.name }}</h1>
+	<p>{{ object.description }}</p>
+	<img src="{{ MEDIA_URL }}{{ object.image }}"/>
+	<h2>Criterias</h2>
+	<ul>
+	{% for item in object.getCriterias %}
+		<li><a href="{{item.get_absolute_url}}">{{item.name}}</a></li>
+	{% endfor %}
+	</ul>
+	<h2>Variants</h2>
+	<ul>
+	{% for item in object.getVariants %}
+		<li><a href="{{item.get_absolute_url}}">{{item.name}}</a></li>
+	{% endfor %}
+	</ul>
+	<h2>Invited</h2>
+	<ul>
+	{% for item in object.getInvited %}
+		<li><a href="{% url 'user_detail' item.user.id %}">{{ item.user.first_name }}</a></li>
+	{% endfor %}
+	</ul>
+	<h2>Members</h2>
+	<ul>
+	{% for item in object.getMembers %}
+		<li><a href="{% url 'user_detail' item.user.id %}">{{ item.user.first_name }}</a></li>
+	{% endfor %}
+	</ul>
+	<h2>Uninvited</h2>
+	<ul>
+	{% for item in object.getUninvited %}
+		<li><a href="{% url 'user_detail' item.id %}">{{ item.first_name }}</a>
+			<a href="{% url 'invite_create' object.id item.id %}" onclick="post(this, event, {{ object.id }}, {{ item.id }})" data-decision="{{ object.id }}" data-user="{{ item.id }}">	-->	Invite</a>
+		</li>
+	{% endfor %}
+	</ul>
+<script>
+function post(link, event, decision_id, user_id){
+	event.preventDefault();
+	var decision_id = $(link).data("decision");
+	var user_id = $(link).data("user");
+	$.post(
+		"{% url 'invite_create' %}", 
+		{ decision_id: decision_id, user_id: user_id, csrfmiddlewaretoken: '{{ csrf_token }}' },
+		function(data){
+			alert(data);
+		}
+	);
+}
+</script>
+{% endblock %}

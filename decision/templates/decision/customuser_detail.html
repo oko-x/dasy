@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<h1>{{ object.username }}</h1>
+	<h2>Invites</h2>
+	<ul>
+		{% for item in object.invite_set.all %}
+			<li><a href="{% url 'decision_detail' item.decision.id %}">{{ item.decision.name }}</a> Stav: {{ item.get_state_display }}</li>
+		{% endfor %}
+	</ul>
+{% endblock %}
