@@ -1,20 +1,9 @@
-"""
-Django settings for mysite project.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/1.6/topics/settings/
-
-For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.6/ref/settings/
-"""
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import socket
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
-
 
 # openshift is our PAAS for now.
 ON_PAAS = 'OPENSHIFT_REPO_DIR' in os.environ
@@ -69,21 +58,38 @@ ROOT_URLCONF = 'mysite.urls'
 
 WSGI_APPLICATION = 'mysite.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
 if ON_PAAS:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',  
-            'NAME':     os.environ['OPENSHIFT_APP_NAME'],
-            'USER':     os.environ['OPENSHIFT_POSTGRESQL_DB_USERNAME'],
-            'PASSWORD': os.environ['OPENSHIFT_POSTGRESQL_DB_PASSWORD'],
-            'HOST':     os.environ['OPENSHIFT_POSTGRESQL_DB_HOST'],
-            'PORT':     os.environ['OPENSHIFT_POSTGRESQL_DB_PORT'],
+    # determine if we are on MySQL or POSTGRESQL
+    if "OPENSHIFT_POSTGRESQL_DB_USERNAME" in os.environ: 
+    
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql_psycopg2',  
+                'NAME':     os.environ['OPENSHIFT_APP_NAME'],
+                'USER':     os.environ['OPENSHIFT_POSTGRESQL_DB_USERNAME'],
+                'PASSWORD': os.environ['OPENSHIFT_POSTGRESQL_DB_PASSWORD'],
+                'HOST':     os.environ['OPENSHIFT_POSTGRESQL_DB_HOST'],
+                'PORT':     os.environ['OPENSHIFT_POSTGRESQL_DB_PORT'],
+            }
         }
-    }
+        
+    elif "OPENSHIFT_MYSQL_DB_USERNAME" in os.environ: 
+    
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.mysql',
+                'NAME':     os.environ['OPENSHIFT_APP_NAME'],
+                'USER':     os.environ['OPENSHIFT_MYSQL_DB_USERNAME'],
+                'PASSWORD': os.environ['OPENSHIFT_MYSQL_DB_PASSWORD'],
+                'HOST':     os.environ['OPENSHIFT_MYSQL_DB_HOST'],
+                'PORT':     os.environ['OPENSHIFT_MYSQL_DB_PORT'],
+            }
+        }
+
+        
 else:
     # stock django
     DATABASES = {
@@ -122,3 +128,11 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 
 )
+
+STATICFILES_DIRS = (
+    # Put strings here, like "/home/html/static" or "C:/www/django/static".
+    # Always use forward slashes, even on Windows.
+    # Don't forget to use absolute paths, not relative paths.
+    os.path.join(BASE_DIR,"static"),
+)
+

@@ -1,14 +1,15 @@
-Django v1.7 on OpenShift v3.2014
+Django v1.7 on OpenShift v3.2014+
 =
-This git repository helps you get up and running quickly with django v1.7 and Openshift March 2014 release.
+This git repository helps you get up and running quickly with django v1.7 and Openshift.
 ###Features
 * Ready to use for local development
 * Easy to push to Openshift
-* Configured for PostgreSQL 9.2
+* Works with  either PostgreSQL or MySQL
 * Minimal changes to default django 1.7 installation
 * Names follow the django 1.7x tutorial
 * Uses new folder layout from Openshift March 2014 release
 * Allows for debug mode on Openshift with the help of an environment variable.
+* Use of static files is pre-configured
 
 ###How to use this repository
 - Create an account at https://www.openshift.com
@@ -21,9 +22,13 @@ rhc setup
 ```
 rhc app create django python-2.7
 ```
-- Add the PostgreSQL 9.2 cartridge
+- Add the database cartridge (choose one)
 ```
 rhc add-cartridge postgresql-9.2 --app django
+
+OR
+
+rhc add-cartridge mysql-5.5 --app django 
 ```
 - Add this upstream repo
 ```
@@ -31,8 +36,9 @@ cd django
 git remote add upstream -m master https://github.com/jfmatth/openshift-django17.git
 git pull -s recursive -X theirs upstream master
 ```
-- Set the WSGI application to django's built in WSGI application.
+- Remove the original wsgi.py, and set the WSGI application to django's built in WSGI application.
 ```
+rm wsgi.py
 rhc env set OPENSHIFT_PYTHON_WSGI_APPLICATION=mysite/wsgi.py --app django
 ```
 - Push the repo upstream
@@ -44,6 +50,13 @@ git push
 python app-root/repo/manage.py createsuperuser
 ```
 - Now use your browser to connect to the Admin site.
+
+### Static files
+Static files are already setup and ready to use for either local or Openshift use. 
+
+Place all static files / folders into the static folder.  They will be collected with collectstatic when pushed to openshift.
+
+DO NOT PUT STATIC FILES INTO /wsgi/static/, this is merely a place holder for collectstatic.
 
 ### Running locally and the django tutorial
 This repository was designed to allow you to quickly develop and deploy a website to Openshift.  For local development, make sure you have the following setup:
