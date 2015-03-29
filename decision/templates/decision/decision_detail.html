@@ -33,15 +33,13 @@
 	<ul>
 	{% for item in object.getUninvited %}
 		<li><a href="{% url 'user_detail' item.id %}">{{ item.first_name }}</a>
-			<a href="{% url 'invite_create' object.id item.id %}" onclick="post(this, event, {{ object.id }}, {{ item.id }})" data-decision="{{ object.id }}" data-user="{{ item.id }}">	-->	Invite</a>
+			<a href="{% url 'invite_create' object.id item.id %}" onclick="post(this, event, {{ object.id }}, {{ item.id }})">	-->	Invite</a>
 		</li>
 	{% endfor %}
 	</ul>
 <script>
 function post(link, event, decision_id, user_id){
 	event.preventDefault();
-	var decision_id = $(link).data("decision");
-	var user_id = $(link).data("user");
 	$.post(
 		"{% url 'invite_create' %}", 
 		{ decision_id: decision_id, user_id: user_id, csrfmiddlewaretoken: '{{ csrf_token }}' },
