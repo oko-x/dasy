@@ -1,11 +1,41 @@
 {% extends "base.html" %}
-
 {% block content %}
 	<h1>{{ object.username }}</h1>
 	<h2>Invites</h2>
 	<ul>
-		{% for item in object.invite_set.all %}
-			<li><a href="{% url 'decision_detail' item.decision.id %}">{{ item.decision.name }}</a> Stav: {{ item.get_state_display }}</li>
+		{% for item in object.getInvites %}
+			<li>
+				<a href="{% url 'decision_detail' item.decision.id %}">{{ item.decision.name }}</a>
+				Stav: {{ item.get_state_display }}
+				<a href="javascript:acceptInvite(event, {{ item.id }})">Prijať</a>
+				<a href="javascript:removeInvite(event, {{ item.id }})">Odmietnuť</a>
+			</li>
 		{% endfor %}
 	</ul>
+	<script>
+	function acceptInvite(event, inviteId){
+		$.post(
+			"{% url 'invite_accept' %}",
+			{ 
+				inviteId: inviteId, 
+				csrfmiddlewaretoken: '{{ csrf_token }}' 
+			},
+			function(data){
+				alert(data);
+			}
+		);
+	}
+	function removeInvite(event, inviteId){
+		$.post(
+			"{% url 'invite_remove' %}",
+			{ 
+				inviteId: inviteId, 
+				csrfmiddlewaretoken: '{{ csrf_token }}' 
+			},
+			function(data){
+				alert(data);
+			}
+		);
+	}
+	</script>
 {% endblock %}

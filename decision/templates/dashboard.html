@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+	{% include "decision/customuser_detail.html" %}
+	
+	</br>
+	{% for invite in user.getDecisions %}
+		{% for vote in invite.decision.getVotes %}
+			{{ vote }}
+			<form class="editForm" data-vote-id="{{vote.pk}}">
+				{% for choice in choices %}
+					<label>
+						<input type="radio" name="{{vote.pk}}" value="{{ choice.0 }}" {% if vote.value == choice.0 %}checked{%endif%}>{{ choice.1 }}
+					</label>
+				{% endfor %}
+				<input type="submit" value="Ok">
+			</form>
+			</br>
+		{% endfor %}
+		{% for wrapper in invite.decision.getPairwiseComparison %}
+			<h3>{{wrapper.0}}</h3>
+			{% for criteria in wrapper.1 %}
+				{{ criteria.0 }} - {{ criteria.1 }} </br>
+				<form class="createForm" data-decision-id="{{invite.decision.pk}}" data-criteria-parent-id="{{wrapper.0.pk}}" data-criteria-left-id="{{ criteria.0.pk }}" data-criteria-right-id="{{ criteria.1.pk }}">
+				{% for choice in choices %}
+					<label>
+						<input type="radio" name="{{ criteria.0 }}-{{ criteria.1 }}" value="{{ choice.0 }}" >{{ choice.1 }}
+					</label>
+				{% endfor %}
+				<input type="submit" value="Ok">
+				</form>
+			{% endfor %}
+		{% endfor %}
+	{% endfor %}
+<script>
+	$(document).ready(function(){
+		$(".editForm").submit(function(e){
+			e.preventDefault();
+			$.post(
+				"{% url 'vote_edit' %}",
+				{ 
+					voteId: $(this).data("vote-id"), 
+					value: $(this).find('input:checked').val(),
+					csrfmiddlewaretoken: '{{ csrf_token }}' 
+				},
+				function(data){
+					alert(data);
+				}
+			);
+
+		});
+		$(".createForm").submit(function(e){
+			e.preventDefault();
+			$.post(
+				"{% url 'vote_add' %}",
+				{ 
+					decisionId: $(this).data("decision-id"), 
+					criteriaLeftId: $(this).data("criteria-left-id"), 
+					criteriaRightId: $(this).data("criteria-right-id"), 
+					criteriaParentId: $(this).data("criteria-parent-id"), 
+					value: $(this).find('input:checked').val(),
+					csrfmiddlewaretoken: '{{ csrf_token }}' 
+				},
+				function(data){
+					alert(data);
+				}
+			);
+
+		});
+	});
+	
+</script>
+{% endblock %}

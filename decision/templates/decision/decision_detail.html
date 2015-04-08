@@ -20,23 +20,25 @@
 	<h2>Invited</h2>
 	<ul>
 	{% for item in object.getInvited %}
-		<li><a href="{% url 'user_detail' item.user.id %}">{{ item.user.first_name }}</a></li>
+		<li><a href="{% url 'user_detail' item.user.id %}">{{ item.user.username }}</a></li>
 	{% endfor %}
 	</ul>
 	<h2>Members</h2>
 	<ul>
 	{% for item in object.getMembers %}
-		<li><a href="{% url 'user_detail' item.user.id %}">{{ item.user.first_name }}</a></li>
+		<li><a href="{% url 'user_detail' item.user.id %}">{{ item.user.username }}</a></li>
 	{% endfor %}
 	</ul>
 	<h2>Uninvited</h2>
 	<ul>
 	{% for item in object.getUninvited %}
-		<li><a href="{% url 'user_detail' item.id %}">{{ item.first_name }}</a>
+		<li><a href="{% url 'user_detail' item.id %}">{{ item.username }}</a>
 			<a href="{% url 'invite_create' object.id item.id %}" onclick="post(this, event, {{ object.id }}, {{ item.id }})">	-->	Invite</a>
 		</li>
 	{% endfor %}
 	</ul>
+	<h2>Eval</h2>
+	{{ object.evaluate }}
 <script>
 function post(link, event, decision_id, user_id){
 	event.preventDefault();
