@@ -4,14 +4,17 @@ from timeit import itertools
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db.models.fields import CharField, BooleanField, DateField, IntegerField,\
+from django.db.models.fields import CharField, BooleanField, DateField, IntegerField, \
     FloatField
 from django.db.models.fields.files import ImageField
 from django.db.models.fields.related import ForeignKey
 from django.utils.timezone import now
 
+from mysite.utils import calcCriteriaWeight, calcVariantsWeightRespectToCriteria, \
+    calcCriteriasWeightRespectToVariant
 import numpy as np
-from mysite.utils import calcCriteriaWeight
+from cvxopt.base import matrix
+from numpy.matrixlib.defmatrix import matrix_power
 
 
 # Create your models here.
@@ -77,8 +80,8 @@ class Decision(models.Model):
     def getVotes(self):
         return self.vote_set.all().select_related('critVarLeft', 'critVarRight')
     def getPairwiseComparison(self):
-        criterias = self.criteria_variant_set.filter(crit_var=False)
-        variants = self.criteria_variant_set.filter(crit_var=True)
+        criterias = self.criteria_variant_set.filter(crit_var=False).order_by('id')
+        variants = self.criteria_variant_set.filter(crit_var=True).order_by('id')
         array = []
         #         pairwise criteria
         array.append(["pairwise criteria", itertools.combinations(criterias, 2)])
@@ -86,7 +89,8 @@ class Decision(models.Model):
         for criteria in criterias:
             array.append([criteria, itertools.combinations(variants, 2)])
         #         pairwise variant to criteria
-        array.append(["pairwise variant to criteria", itertools.product(variants, criterias)])
+        for variant in variants:
+            array.append([variant, itertools.combinations(criterias, 2)])
         return array
     def getCriterias(self):
         return self.criteria_variant_set.filter(crit_var=False)
@@ -99,10 +103,45 @@ class Decision(models.Model):
     def getUninvited(self):
         return CustomUser.objects.exclude(invite__decision=self)
     def evaluate(self):
+        LIMIT_MATRIX_DECIMAL_PRECISION = 0.000001
         criterias = self.criteria_variant_set.filter(crit_var=False).order_by('id')
         variants = self.criteria_variant_set.filter(crit_var=True).order_by('id')
+        criteriasLength = len(criterias)
+        variantsLength = len(variants)
+        supermatrix = np.eye(1+criteriasLength+variantsLength)
         votes = self.vote_set.all().select_related('critVarLeft', 'critVarRight', 'user').order_by('id')
-        print calcCriteriaWeight(criterias, votes)
+        for i, weight in enumerate(calcCriteriaWeight(criterias, votes)):
+            supermatrix[i + 1, 0] = weight
+        for j, criteria in enumerate(criterias):
+            for i, weight in enumerate(calcVariantsWeightRespectToCriteria(variants, votes, criteria)):
+                supermatrix[1+criteriasLength+i,j+1] = weight
+#         AHP
+#         np.linalg.matrix_power(supermatrix, 2)
+#         rank in bottom left
+        for j, variant in enumerate(variants):
+            for i, weight in enumerate(calcCriteriasWeightRespectToVariant(criterias, votes, variant)):
+                supermatrix[1+i,j+1+criteriasLength] = weight
+        i = 1
+        diff = True
+        priorities = np.array([])
+        old_priorities = None
+        while diff:
+            supermatrix_pow = np.linalg.matrix_power(supermatrix, 2*i)
+            for j in range(0, variantsLength):
+                priorities = np.append(priorities, supermatrix_pow.item(1+j+criteriasLength,0))
+            priorities = priorities / np.linalg.norm(priorities, 1)
+            if old_priorities is not None:
+                difference = priorities - old_priorities
+                newDiff = False
+                for k in difference:
+                    if abs(k) > LIMIT_MATRIX_DECIMAL_PRECISION:
+                        newDiff = True
+                diff = newDiff
+            old_priorities = priorities
+            priorities = np.array([])
+            i += 1
+        print old_priorities
+        
         return
     def __unicode__(self):
         return self.get_state_display() + "_" + self.name
@@ -119,21 +158,33 @@ class Criteria_Variant(models.Model):
 class Vote(models.Model):
     DEFINETLY_LEFT = 9
     LEFT = 7
+    SEST = 6
     PROBABLY_LEFT = 5
+    STYRI = 4
     MORE_LEFT = 3
+    DVA = 2
     SAME = 1
+    POLOVICA = 0.5
     MORE_RIHT = 0.333333
+    STVRTINA = 0.25
     PROBABLY_RIGHT = 0.2
+    SESTINA = 0.166666
     RIGHT = 0.142857
     DEFINETLY_RIGHT = 0.111111
     VOTE_CHOICES = (
         (DEFINETLY_LEFT, u'Jednoznačne Ľavé'),
         (LEFT, u'Ľavé'),
+        (SEST, u'SEST'),
         (PROBABLY_LEFT, u'Skôr Ľavé'),
+        (STYRI, u'STYRI'),
         (MORE_LEFT, u'Asi Ľavé'),
-        (SAME, u'Ľavé'),
+        (DVA, u'DVA'),
+        (SAME, u'Rovnaké'),
+        (POLOVICA, u'POLOVICA'),
         (MORE_RIHT, u'Asi pravé'),
+        (STVRTINA, u'STVRTINA'),
         (PROBABLY_RIGHT, u'Skôr pravé'),
+        (SESTINA, u'SESTINA'),
         (RIGHT, u'Pravé'),
         (DEFINETLY_RIGHT, u'Jednoznačne pravé'),
     )

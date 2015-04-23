@@ -32,8 +32,13 @@ def calcWeightMatrix(leftArray, topArray, votes, parentCrit = None):
                     value = np.median(valueArray)
                     weightMatrix[i,j] = value;
                     weightMatrix[j,i] = 1/value;                
-    print weightMatrix
     return weightMatrix
 
 def calcCriteriaWeight(criterias, votes):
     return calcWeightVector(calcWeightMatrix(criterias, criterias, votes))
+
+def calcVariantsWeightRespectToCriteria(variants, votes, parentCrit):
+    return calcWeightVector(calcWeightMatrix(variants, variants, votes, parentCrit))
+
+def calcCriteriasWeightRespectToVariant(criterias, votes, parentCrit):
+    return calcWeightVector(calcWeightMatrix(criterias, criterias, votes, parentCrit))
