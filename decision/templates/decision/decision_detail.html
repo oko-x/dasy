@@ -32,7 +32,13 @@
 	<h2>Uninvited</h2>
 	<ul>
 	{% for item in object.getUninvited %}
-		<li><a href="{% url 'user_detail' item.id %}">{{ item.username }}</a>
+		<li>
+			<a href="{% url 'user_detail' item.id %}">{{ item.username }}</a>
+			<select id="userWeight">
+			{% for weight in weights %}
+				<option value="{{weight.0}}">{{weight.1}}</option>
+			{% endfor %}
+			</select>
 			<a href="{% url 'invite_create' object.id item.id %}" onclick="post(this, event, {{ object.id }}, {{ item.id }})">	-->	Invite</a>
 		</li>
 	{% endfor %}
@@ -44,7 +50,7 @@ function post(link, event, decision_id, user_id){
 	event.preventDefault();
 	$.post(
 		"{% url 'invite_create' %}", 
-		{ decision_id: decision_id, user_id: user_id, csrfmiddlewaretoken: '{{ csrf_token }}' },
+		{ decision_id: decision_id, user_id: user_id, user_weight: $("#userWeight").val(), csrfmiddlewaretoken: '{{ csrf_token }}' },
 		function(data){
 			alert(data);
 		}

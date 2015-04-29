@@ -26,7 +26,7 @@ def calcWeightMatrix(leftArray, topArray, votes, parentCrit = None):
                 qs = votes.filter(critVarLeft=left, critVarRight=right, parentCrit=parentCrit)
                 valueArray = []
                 for vote in qs:
-                    for w in range(0, vote.user.weight):
+                    for w in range(0, vote.userWeight):
                         valueArray.append(vote.value)
                 if len(qs) > 0:
                     value = np.median(valueArray)

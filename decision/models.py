@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import re
 from timeit import itertools
 
 from django.contrib.auth.models import AbstractUser
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.fields import CharField, BooleanField, DateField, IntegerField, \
     FloatField
@@ -13,26 +15,11 @@ from django.utils.timezone import now
 from mysite.utils import calcCriteriaWeight, calcVariantsWeightRespectToCriteria, \
     calcCriteriasWeightRespectToVariant
 import numpy as np
-from cvxopt.base import matrix
-from numpy.matrixlib.defmatrix import matrix_power
 
 
 # Create your models here.
 class CustomUser(AbstractUser):
-    ROOKIE = 2
-    TRAINEE = 4
-    EDUCATED = 6
-    PROFFESIONAL = 8
-    EXPERT = 10
-    WEIGHT_CHOICES = (
-        (ROOKIE, u'Začiatočník'),
-        (TRAINEE, u'Učeň'),
-        (EDUCATED, u'Vyučený'),
-        (PROFFESIONAL, u'Profesionál'),
-        (EXPERT, u'Expert'),
-    )
     image = ImageField(null=True, blank=True, upload_to="pics/avatars")
-    weight = IntegerField(choices=WEIGHT_CHOICES)
     def getInvites(self):
         return self.invite_set.all()
     def getDecisions(self):
@@ -49,6 +36,19 @@ class Invite(models.Model):
         (ACCEPTED, u'Akceptovaná'),
         (DECLINED, u'Odmietnutá'),
     )
+    ROOKIE = 2
+    TRAINEE = 4
+    EDUCATED = 6
+    PROFFESIONAL = 8
+    EXPERT = 10
+    WEIGHT_CHOICES = (
+        (ROOKIE, u'Začiatočník'),
+        (TRAINEE, u'Učeň'),
+        (EDUCATED, u'Vyučený'),
+        (PROFFESIONAL, u'Profesionál'),
+        (EXPERT, u'Expert'),
+    )
+    weight = IntegerField(choices=WEIGHT_CHOICES)
     user = ForeignKey(CustomUser)
     decision = ForeignKey('Decision')
     state = CharField(max_length=2, choices=STATE_CHOICES, default="SE")
@@ -58,8 +58,13 @@ class Invite(models.Model):
     def setSeen(self):
         self.state = "SN"
         self.save()
+    def __unicode__(self):
+        return "_".join([self.decision.name,
+                         self.user.username,
+                         self.get_weight_display()])
     
 class Decision(models.Model):
+    LIMIT_MATRIX_DECIMAL_PRECISION = 0.000001
     NEW = 'NE'
     STAGE_ONE = 'SO'
     STAGE_TWO = 'ST'
@@ -77,14 +82,18 @@ class Decision(models.Model):
     published = DateField(default=now)
     stage_one_date = DateField(null=True, blank=True)
     stage_two_date = DateField(null=True, blank=True)
+    lastVotesCount = IntegerField(null=True, blank=True)
+    lastResult = CharField(max_length=2000, null=True, blank=True)
+    def get_absolute_url(self):
+        return reverse('decision_detail', kwargs={'pk': self.pk})
     def getVotes(self):
         return self.vote_set.all().select_related('critVarLeft', 'critVarRight')
     def getPairwiseComparison(self):
-        criterias = self.criteria_variant_set.filter(crit_var=False).order_by('id')
-        variants = self.criteria_variant_set.filter(crit_var=True).order_by('id')
+        criterias = self.criteria_variant_set.filter(crit_var=False).order_by('name')
+        variants = self.criteria_variant_set.filter(crit_var=True).order_by('name')
         array = []
         #         pairwise criteria
-        array.append(["pairwise criteria", itertools.combinations(criterias, 2)])
+        array.append([None, itertools.combinations(criterias, 2)])
         #         pairwise variants with respect to criteria
         for criteria in criterias:
             array.append([criteria, itertools.combinations(variants, 2)])
@@ -103,13 +112,15 @@ class Decision(models.Model):
     def getUninvited(self):
         return CustomUser.objects.exclude(invite__decision=self)
     def evaluate(self):
-        LIMIT_MATRIX_DECIMAL_PRECISION = 0.000001
-        criterias = self.criteria_variant_set.filter(crit_var=False).order_by('id')
-        variants = self.criteria_variant_set.filter(crit_var=True).order_by('id')
+        votes = self.vote_set.all().select_related('critVarLeft', 'critVarRight', 'user').order_by('id')
+        if len(votes) == self.lastVotesCount:
+            print "cached"
+            return
+        criterias = self.criteria_variant_set.filter(crit_var=False).order_by('name')
+        variants = self.criteria_variant_set.filter(crit_var=True).order_by('name')
         criteriasLength = len(criterias)
         variantsLength = len(variants)
         supermatrix = np.eye(1+criteriasLength+variantsLength)
-        votes = self.vote_set.all().select_related('critVarLeft', 'critVarRight', 'user').order_by('id')
         for i, weight in enumerate(calcCriteriaWeight(criterias, votes)):
             supermatrix[i + 1, 0] = weight
         for j, criteria in enumerate(criterias):
@@ -134,15 +145,16 @@ class Decision(models.Model):
                 difference = priorities - old_priorities
                 newDiff = False
                 for k in difference:
-                    if abs(k) > LIMIT_MATRIX_DECIMAL_PRECISION:
+                    if abs(k) > self.LIMIT_MATRIX_DECIMAL_PRECISION:
                         newDiff = True
                 diff = newDiff
             old_priorities = priorities
             priorities = np.array([])
             i += 1
-        print old_priorities
-        
-        return
+        self.lastResult = ";".join(str(x) for x in old_priorities)
+        self.lastVotesCount = len(votes)
+        self.save()
+#         print old_priorities
     def __unicode__(self):
         return self.get_state_display() + "_" + self.name
     
@@ -153,7 +165,7 @@ class Criteria_Variant(models.Model):
     image = ImageField(null=True, blank=True, upload_to="pics/critvar")
     crit_var = BooleanField(default=None)
     def __unicode__(self):
-        return self.decision.__unicode__()+"_"+("Variant_" if self.crit_var else "Criteria_") +self.name
+        return re.sub(r'[_ -]*','',self.name)
     
 class Vote(models.Model):
     DEFINETLY_LEFT = 9
@@ -188,6 +200,19 @@ class Vote(models.Model):
         (RIGHT, u'Pravé'),
         (DEFINETLY_RIGHT, u'Jednoznačne pravé'),
     )
+    ROOKIE = 2
+    TRAINEE = 4
+    EDUCATED = 6
+    PROFFESIONAL = 8
+    EXPERT = 10
+    WEIGHT_CHOICES = (
+        (ROOKIE, u'Začiatočník'),
+        (TRAINEE, u'Učeň'),
+        (EDUCATED, u'Vyučený'),
+        (PROFFESIONAL, u'Profesionál'),
+        (EXPERT, u'Expert'),
+    )
+    userWeight = IntegerField(choices=WEIGHT_CHOICES)
     user = ForeignKey(CustomUser)
     decision = ForeignKey(Decision)
     parentCrit = ForeignKey(Criteria_Variant, related_name='critVar_parent', default=None, null=True, blank=True)
@@ -195,5 +220,5 @@ class Vote(models.Model):
     critVarRight = ForeignKey(Criteria_Variant, related_name='critVar_right', default=None)
     value = FloatField(choices=VOTE_CHOICES)
     def __unicode__(self):
-        return self.critVarLeft.__unicode__() + "_" + self.critVarRight.__unicode__() + "_" + self.user.__unicode__() + "_" + self.get_value_display()
+        return (self.parentCrit.__unicode__() + "_" if self.parentCrit is not None else "") + self.critVarLeft.__unicode__() + "-" + self.critVarRight.__unicode__()
     

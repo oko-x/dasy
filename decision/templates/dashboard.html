@@ -4,21 +4,32 @@
 	
 	</br>
 	{% for invite in user.getDecisions %}
+	<section class="decision">
+		<h2>{{ invite.decision.name }}</h2>
 		{% for vote in invite.decision.getVotes %}
-			{{ vote }}
-			<form class="editForm" data-vote-id="{{vote.pk}}">
-				{% for choice in choices %}
-					<label>
-						<input type="radio" name="{{vote.pk}}" value="{{ choice.0 }}" {% if vote.value == choice.0 %}checked{%endif%}>{{ choice.1 }}
-					</label>
-				{% endfor %}
-				<input type="submit" value="Ok">
-			</form>
-			</br>
+			<div class="vote" data-vote-id="{{ vote }}">
+			{% if vote.parentCrit %}
+				<h3>{{ vote.parentCrit }}</h3>
+			{% endif %}
+				{{ vote }}
+				<form class="editForm" data-vote-id="{{vote.pk}}">
+					{% for choice in choices %}
+						<label>
+							<input type="radio" name="{{vote.pk}}" value="{{ choice.0 }}" {% if vote.value == choice.0 %}checked{%endif%}>{{ choice.1 }}
+						</label>
+					{% endfor %}
+					<input type="submit" value="Ok">
+				</form>
+			</div>
 		{% endfor %}
 		{% for wrapper in invite.decision.getPairwiseComparison %}
-			<h3>{{wrapper.0}}</h3>
 			{% for criteria in wrapper.1 %}
+			{% if wrapper.0 %}
+				<div class="toVote {{ wrapper.0 }}_{{criteria.0}}-{{criteria.1}}">
+				<h3>{{ wrapper.0 }}</h3>
+			{% else %}
+				<div class="toVote {{criteria.0}}-{{criteria.1}}">
+			{% endif %}
 				{{ criteria.0 }} - {{ criteria.1 }} </br>
 				<form class="createForm" data-decision-id="{{invite.decision.pk}}" data-criteria-parent-id="{{wrapper.0.pk}}" data-criteria-left-id="{{ criteria.0.pk }}" data-criteria-right-id="{{ criteria.1.pk }}">
 				{% for choice in choices %}
@@ -28,8 +39,10 @@
 				{% endfor %}
 				<input type="submit" value="Ok">
 				</form>
+			</div>
 			{% endfor %}
 		{% endfor %}
+	</section>
 	{% endfor %}
 <script>
 	$(document).ready(function(){
@@ -65,6 +78,11 @@
 				}
 			);
 
+		});
+		$(".decision").each(function(index, value){
+			$(this).find(".vote").each(function(i, val){
+				$("."+$(this).data("vote-id")).hide();
+			});
 		});
 	});
 	

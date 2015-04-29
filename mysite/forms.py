@@ -4,7 +4,9 @@ Created on 5.4.2015
 @author: Ondrej
 '''
 from django import forms
-from decision.models import CustomUser
+from django.forms.models import inlineformset_factory
+
+from decision.models import CustomUser, Decision, Criteria_Variant
 
 
 class UserCreationForm(forms.ModelForm):
@@ -19,3 +21,10 @@ class UserCreationForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+
+class DecisionForm(forms.ModelForm):
+    class Meta:
+        model = Decision
+        fields = ('name', 'description', 'image')
+        
+CriteriaVariantFormSet = inlineformset_factory(Decision, Criteria_Variant, fields=('name','description', 'image', 'crit_var'), extra=1)

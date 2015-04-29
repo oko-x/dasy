@@ -6,6 +6,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 AUTH_USER_MODEL = 'decision.CustomUser'
 
+LOGIN_URL = '/app/login/'
+LOGOUT_URL = '/app/logout/'
+LOGIN_REDIRECT_URL = '/app/'
+
 # openshift is our PAAS for now.
 ON_PAAS = 'OPENSHIFT_REPO_DIR' in os.environ
 
@@ -38,13 +42,13 @@ else:
 # Application definition
 
 INSTALLED_APPS = (
+    'decision',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'decision',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -87,7 +91,7 @@ else:
             'USER':    'adminhh9rze7',
             'PASSWORD':'hB3VCyByGnH_',
             'HOST':    'localhost',
-            'PORT':    '64919',
+            'PORT':    '64465',
         }
     }
 

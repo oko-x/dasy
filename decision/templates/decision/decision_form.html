@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div>
+    <h1>Add decision</h1>
+    <form action="" method="post">
+        {% csrf_token %}
+        <div>
+            {{ form.as_p }}
+        </div>
+        <fieldset>
+            <legend>Criterias</legend>
+            {{ crit_form.management_form }}
+            {{ crit_form.non_form_errors }}
+            {% for form in crit_form %}
+                {{ form.id }}
+                <div class="inline criterias">
+                    {{ form.name.errors }}
+                    {{ form.name.label_tag }}
+                    {{ form.name }}
+                    {{ form.description.errors }}
+                    {{ form.description.label_tag }}
+                    {{ form.description }}
+                    {{ form.image.errors }}
+                    {{ form.image.label_tag }}
+                    {{ form.image }}
+                </div>
+            {% endfor %}
+        </fieldset>
+        <fieldset>
+            <legend>Variants</legend>
+            {{ var_form.management_form }}
+            {{ var_form.non_form_errors }}
+            {% for form in var_form %}
+                {{ form.id }}
+                <div class="inline variants">
+                    {{ form.name.errors }}
+                    {{ form.name.label_tag }}
+                    {{ form.name }}
+                    {{ form.description.errors }}
+                    {{ form.description.label_tag }}
+                    {{ form.description }}
+                    {{ form.image.errors }}
+                    {{ form.image.label_tag }}
+                    {{ form.image }}
+                </div>
+            {% endfor %}
+        </fieldset>
+        <input type="submit" value="Add decision" class="submit" />
+    </form>
+</div>
+{% endblock %}
+{% block javascript %}
+<script type="text/javascript">
+    $(function() {
+        $(".inline.variants").formset({
+            prefix: "variants",
+        })
+    })
+    $(function() {
+        $(".inline.criterias").formset({
+            prefix: "criterias",
+        })
+    })
+</script>
+{% endblock %}
