@@ -87,7 +87,7 @@ class Decision(models.Model):
     def get_absolute_url(self):
         return reverse('decision_detail', kwargs={'pk': self.pk})
     def getVotes(self):
-        return self.vote_set.all().select_related('critVarLeft', 'critVarRight')
+        return self.vote_set.all().select_related('critVarLeft', 'critVarRight', 'parentCrit').order_by('order')
     def getPairwiseComparison(self):
         criterias = self.criteria_variant_set.filter(crit_var=False).order_by('name')
         variants = self.criteria_variant_set.filter(crit_var=True).order_by('name')
@@ -212,6 +212,7 @@ class Vote(models.Model):
         (PROFFESIONAL, u'Profesionál'),
         (EXPERT, u'Expert'),
     )
+    order = IntegerField()
     userWeight = IntegerField(choices=WEIGHT_CHOICES)
     user = ForeignKey(CustomUser)
     decision = ForeignKey(Decision)

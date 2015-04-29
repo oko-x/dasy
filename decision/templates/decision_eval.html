@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="decision">
+	<h2>{{ decision.name }}</h2>
+	{% for vote in decision.getVotes %}
+		<div class="vote" data-vote-id="{{ vote }}">
+		{% if vote.parentCrit %}
+			<h3>{{ vote.parentCrit }}</h3>
+		{% endif %}
+			{{ vote }}
+			<form class="editForm" data-vote-id="{{vote.pk}}">
+				{% for choice in choices %}
+					<label>
+						<input type="radio" name="{{vote.pk}}" value="{{ choice.0 }}" {% if vote.value == choice.0 %}checked{%endif%}>{{ choice.1 }}
+					</label>
+				{% endfor %}
+				<input type="submit" value="Ok">
+			</form>
+		</div>
+	{% endfor %}
+	{% for wrapper in decision.getPairwiseComparison %}
+		{% for criteria in wrapper.1 %}
+		{% if wrapper.0 %}
+			<div class="toVote {{ wrapper.0 }}_{{criteria.0}}-{{criteria.1}}">
+			<h3>{{ wrapper.0 }}</h3>
+		{% else %}
+			<div class="toVote {{criteria.0}}-{{criteria.1}}">
+		{% endif %}
+			{{ criteria.0 }} - {{ criteria.1 }} </br>
+			<form class="createForm" data-order data-decision-id="{{decision.pk}}" data-criteria-parent-id="{{wrapper.0.pk}}" data-criteria-left-id="{{ criteria.0.pk }}" data-criteria-right-id="{{ criteria.1.pk }}">
+			{% for choice in choices %}
+				<label>
+					<input type="radio" name="{{ criteria.0 }}-{{ criteria.1 }}" value="{{ choice.0 }}" >{{ choice.1 }}
+				</label>
+			{% endfor %}
+			<input type="submit" value="Ok">
+			</form>
+		</div>
+		{% endfor %}
+	{% endfor %}
+</section>
+{% endblock %}
+{% block javascript %}
+<script>
+	$(document).ready(function(){
+		$(".editForm").submit(function(e){
+			e.preventDefault();
+			$.post(
+				"{% url 'vote_edit' %}",
+				{ 
+					voteId: $(this).data("vote-id"), 
+					value: $(this).find('input:checked').val(),
+					csrfmiddlewaretoken: '{{ csrf_token }}' 
+				},
+				function(data){
+					alert(data);
+				}
+			);
+
+		});
+		$(".createForm").each(function(index, value){
+			$(this).attr("data-order", index);
+		});
+		$(".createForm").submit(function(e){
+			e.preventDefault();
+
+			$.post(
+				"{% url 'vote_add' %}",
+				{ 
+					decisionId: $(this).data("decision-id"), 
+					criteriaLeftId: $(this).data("criteria-left-id"), 
+					criteriaRightId: $(this).data("criteria-right-id"), 
+					criteriaParentId: $(this).data("criteria-parent-id"), 
+					order: $(this).data("order"), 
+					value: $(this).find('input:checked').val(),
+					csrfmiddlewaretoken: '{{ csrf_token }}' 
+				},
+				function(data){
+					alert(data);
+				}
+			);
+
+		});
+		$(".decision").each(function(index, value){
+			$(this).find(".vote").each(function(i, val){
+				$("."+$(this).data("vote-id")).hide();
+			});
+		});
+	});
+</script>
+{% endblock %}

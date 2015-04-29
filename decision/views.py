@@ -52,6 +52,7 @@ def voteAdd(request):
     criteriaLeftId = request.POST['criteriaLeftId']
     criteriaRightId = request.POST['criteriaRightId']
     criteriaParentId = request.POST['criteriaParentId']
+    order = request.POST['order']
     value = request.POST['value']
     invite = Invite.objects.filter(decision__id=decisionId, user=request.user)
     weight = invite[0].weight 
@@ -74,7 +75,8 @@ def voteAdd(request):
                     critVarRight=Criteria_Variant.objects.get(pk=criteriaRightId),
                     parentCrit = parentCrit,
                     value=value,
-                    userWeight=weight,)
+                    userWeight=weight,
+                    order=order,)
         vote.save()
     return HttpResponse("Vote saved")
 
@@ -178,6 +180,16 @@ class UserDetailView(generic.DetailView):
     def dispatch(self, *args, **kwargs):
         return super(UserDetailView, self).dispatch(*args, **kwargs)
  
+class DecisionEvaluateView(generic.TemplateView):
+    template_name = "decision_eval.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super(DecisionEvaluateView, self).get_context_data(**kwargs)
+        context['object'] = self.request.user
+        context['choices'] = Vote.VOTE_CHOICES
+        context['decision'] = Decision.objects.get(pk=kwargs['pk'])
+        return context
+
 class Index(generic.TemplateView):
     template_name = "dashboard.html"
     
