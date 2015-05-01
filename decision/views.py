@@ -104,8 +104,8 @@ class DecisionCreateView(generic.CreateView):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        crit_form = CriteriaVariantFormSet()
-        var_form = CriteriaVariantFormSet()
+        crit_form = CriteriaVariantFormSet(prefix="criterias")
+        var_form = CriteriaVariantFormSet(prefix="variants")
         return self.render_to_response(
             self.get_context_data(form=form,
                                   crit_form=crit_form,
@@ -120,8 +120,8 @@ class DecisionCreateView(generic.CreateView):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        crit_form = CriteriaVariantFormSet(self.request.POST)
-        var_form = CriteriaVariantFormSet(self.request.POST)
+        crit_form = CriteriaVariantFormSet(self.request.POST, prefix="criterias")
+        var_form = CriteriaVariantFormSet(self.request.POST, prefix="variants")
         if (form.is_valid() and crit_form.is_valid() and var_form.is_valid()):
             return self.form_valid(form, crit_form, var_form)
         else:

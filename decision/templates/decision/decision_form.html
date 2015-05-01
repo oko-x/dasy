@@ -1,66 +1,122 @@
 {% extends "base.html" %}
-
+{% block title %}Add decision{% endblock %}
+{% block header %}Add decision{% endblock %}
 {% block content %}
-<div>
-    <h1>Add decision</h1>
-    <form action="" method="post">
-        {% csrf_token %}
-        <div>
-            {{ form.as_p }}
+<form action="" method="post">
+{% csrf_token %}
+{{ form.management_form }}
+<section>
+    <div class="row">
+        <div class="small-12 medium-4 columns">
+            <div class="name-field">
+                <label {% if form.name.errors %}class="error"{% endif %}>{{ form.name.label }} <small>required</small>
+                    {{ form.name }}
+                </label>
+                {% if form.name.errors %}<span class="error">{{ form.name.errors }}</span>{% endif %}
+            </div>    
         </div>
-        <fieldset>
-            <legend>Criterias</legend>
-            {{ crit_form.management_form }}
-            {{ crit_form.non_form_errors }}
-            {% for form in crit_form %}
-                {{ form.id }}
-                <div class="inline criterias">
-                    {{ form.name.errors }}
-                    {{ form.name.label_tag }}
-                    {{ form.name }}
-                    {{ form.description.errors }}
-                    {{ form.description.label_tag }}
+        <div class="small-12 medium-4 columns">
+            <div>
+                <label {% if form.description.errors %}class="error"{% endif %}>{{ form.description.label }}
                     {{ form.description }}
-                    {{ form.image.errors }}
-                    {{ form.image.label_tag }}
+                </label>
+                {% if form.description.errors %}<span class="error">{{ form.description.errors }}</span>{% endif %}
+            </div>    
+        </div>
+        <div class="small-12 medium-4 columns">
+            <div>
+                <label {% if form.image.errors %}class="error"{% endif %}>{{ form.image.label }}
                     {{ form.image }}
-                </div>
-            {% endfor %}
-        </fieldset>
-        <fieldset>
-            <legend>Variants</legend>
-            {{ var_form.management_form }}
-            {{ var_form.non_form_errors }}
-            {% for form in var_form %}
-                {{ form.id }}
-                <div class="inline variants">
-                    {{ form.name.errors }}
-                    {{ form.name.label_tag }}
-                    {{ form.name }}
-                    {{ form.description.errors }}
-                    {{ form.description.label_tag }}
-                    {{ form.description }}
-                    {{ form.image.errors }}
-                    {{ form.image.label_tag }}
-                    {{ form.image }}
-                </div>
-            {% endfor %}
-        </fieldset>
-        <input type="submit" value="Add decision" class="submit" />
-    </form>
-</div>
+                </label>
+                {% if form.image.errors %}<span class="error">{{ form.image.errors }}</span>{% endif %}
+            </div>    
+        </div>
+    </div>
+    <div class="row">
+        <input class="button small" type="submit" value="Add decision" class="submit" />
+    </div>
+</section>
+<section>
+    <h2 class="widgetHeader">Criterias</h2>
+    {% for form in crit_form %}
+        {{ form.id }}
+        <div class="row inline criterias">
+            <div class="small-12 medium-4 columns">
+                <div class="name-field">
+                    <label {% if form.name.errors %}class="error"{% endif %}>{{ form.name.label }} <small>required</small>
+                        {{ form.name }}
+                    </label>
+                    {% if form.name.errors %}<span class="error">{{ form.name.errors }}</span>{% endif %}
+                </div>    
+            </div>
+            <div class="small-12 medium-4 columns">
+                <div>
+                    <label {% if form.description.errors %}class="error"{% endif %}>{{ form.description.label }}
+                        {{ form.description }}
+                    </label>
+                    {% if form.description.errors %}<span class="error">{{ form.description.errors }}</span>{% endif %}
+                </div>    
+            </div>
+            <div class="small-12 medium-4 columns">
+                <div>
+                    <label {% if form.image.errors %}class="error"{% endif %}>{{ form.image.label }}
+                        {{ form.image }}
+                    </label>
+                    {% if form.image.errors %}<span class="error">{{ form.image.errors }}</span>{% endif %}
+                </div>    
+            </div>
+        </div>
+    {% endfor %}
+    {{ crit_form.management_form }}
+    {{ crit_form.non_form_errors }}
+</section>
+<section>
+    <h2 class="widgetHeader">Variants</h2>
+    {% for form in var_form %}
+        {{ form.id }}
+        <div class="inline row variants">
+            <div class="small-12 medium-4 columns">
+                <div class="name-field">
+                    <label {% if form.name.errors %}class="error"{% endif %}>{{ form.name.label }} <small>required</small>
+                        {{ form.name }}
+                    </label>
+                    {% if form.name.errors %}<span class="error">{{ form.name.errors }}</span>{% endif %}
+                </div>    
+            </div>
+            <div class="small-12 medium-4 columns">
+                <div>
+                    <label {% if form.description.errors %}class="error"{% endif %}>{{ form.description.label }}
+                        {{ form.description }}
+                    </label>
+                    {% if form.description.errors %}<span class="error">{{ form.description.errors }}</span>{% endif %}
+                </div>    
+            </div>
+            <div class="small-12 medium-4 columns">
+                <div>
+                    <label {% if form.image.errors %}class="error"{% endif %}>{{ form.image.label }}
+                        {{ form.image }}
+                    </label>
+                    {% if form.image.errors %}<span class="error">{{ form.image.errors }}</span>{% endif %}
+                </div>    
+            </div>
+        </div>
+    {% endfor %}
+    {{ var_form.management_form }}
+    {{ var_form.non_form_errors }}
+</section>
+</form>
 {% endblock %}
 {% block javascript %}
 <script type="text/javascript">
     $(function() {
-        $(".inline.variants").formset({
-            prefix: "variants",
-        })
-    })
-    $(function() {
-        $(".inline.criterias").formset({
-            prefix: "criterias",
-        })
+        $('.criterias.inline').formset({
+            prefix: '{{ crit_form.prefix }}',
+            formCssClass: 'dynamic-critFormset'
+        });
+        $('.variants.inline').formset({
+            prefix: '{{ var_form.prefix }}',
+            formCssClass: 'dynamic-carFormset'
+        });
     })
 </script>
 {% endblock %}
