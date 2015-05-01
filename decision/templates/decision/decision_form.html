@@ -1,8 +1,13 @@
 {% extends "base.html" %}
 {% block title %}Add decision{% endblock %}
 {% block header %}Add decision{% endblock %}
+{% block buttons %}
+<div class="button" onlick="">
+    
+</div>
+{% endblock %}
 {% block content %}
-<form action="" method="post">
+<form id="decision_form" name="decision_form" action="" enctype="multipart/form-data" method="post">
 {% csrf_token %}
 {{ form.management_form }}
 <section>

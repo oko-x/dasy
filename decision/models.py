@@ -19,7 +19,7 @@ import numpy as np
 
 # Create your models here.
 class CustomUser(AbstractUser):
-    image = ImageField(null=True, blank=True, upload_to="pics/avatars")
+    image = ImageField(null=True, blank=True, upload_to="pics/avatars", default = 'pics/no-img.png')
     def getInvites(self):
         return self.invite_set.all()
     def getUnrespondedInvites(self):
@@ -80,9 +80,9 @@ class Decision(models.Model):
         (FINISHED, u'Dokončené'),
     )
     name = CharField(max_length=200)
-    description = CharField( max_length=200, blank=True)
+    description = CharField( max_length=2000, blank=True)
     creator = ForeignKey(CustomUser)
-    image = ImageField(null=True, blank=True, upload_to="pics/decision")
+    image = ImageField(null=True, blank=True, upload_to="pics/decision", default = 'pics/no-img.png')
     state = CharField(max_length=2, choices=STATE_CHOICES, default="NE")
     published = DateField(default=now)
     stage_one_date = DateField(null=True, blank=True)
@@ -134,7 +134,7 @@ class Decision(models.Model):
     def getVariants(self):
         return self.criteria_variant_set.filter(crit_var=True)
     def getInvited(self):
-        return self.invite_set.filter(state__in=["SE","SN"])
+        return self.invite_set.all()
     def getMembers(self):
         return self.invite_set.filter(state="AC")
     def getUninvited(self):
@@ -194,8 +194,8 @@ class DecisionValue(models.Model):
 class Criteria_Variant(models.Model):
     decision = ForeignKey(Decision)
     name = CharField(max_length=200)
-    description = CharField(max_length=200, blank=True)
-    image = ImageField(null=True, blank=True, upload_to="pics/critvar")
+    description = CharField(max_length=2000, blank=True)
+    image = ImageField(null=True, blank=True, upload_to="pics/critvar", default = 'pics/no-img.png')
     crit_var = BooleanField(default=None)
     def __unicode__(self):
         return re.sub(r'[_ -]*','',self.name)
