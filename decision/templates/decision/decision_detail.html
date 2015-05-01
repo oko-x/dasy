@@ -1,36 +1,68 @@
 {% extends "base.html" %}
-
+{% block title %}Decision detail{% endblock %}
+{% block header %}Decision detail{% endblock %}
 {% block content %}
-
-	<h1>{{ object.name }}</h1>
-	<p>{{ object.description }}</p>
-	<img src="{{ MEDIA_URL }}{{ object.image }}"/>
-	<h2>Criterias</h2>
-	<ul>
+<section>
+	<h2 class="widgetHeader">{{ object.name }}</h2>
+	<div class="row">
+		<div class="columns small-12 medium-4">
+			<div class="picture" style="background:url('{{ MEDIA_URL }}{{ object.image }}');"></div>
+		</div>
+		<div class="columns small-12 medium-8">
+			<p class="description">{{ object.description }}</p>
+		</div>
+	</div>
+</section>
+<section>
+	<h2 class="widgetHeader">Criterias</h2>
 	{% for item in object.getCriterias %}
-		<li><a href="{{item.get_absolute_url}}">{{item.name}}</a></li>
+	<div class="itemWrapper">
+		<i class="fa fa-plus" onclick="openContent(this);"></i>
+		<a href="{{item.get_absolute_url}}">
+			<h2>{{item.name}}</h2>
+		</a>
+		<div class="collapsedContent">
+			<div class="row">
+				<div class="columns small-12 medium-4">
+					<div class="picture" style="background:url('{{ MEDIA_URL }}{{ item.image }}');"></div>
+				</div>
+				<div class="columns small-12 medium-8">
+					<p class="description">{{ item.description }}</p>
+				</div>
+			</div>
+		</div>
+	</div>
 	{% endfor %}
-	</ul>
-	<h2>Variants</h2>
-	<ul>
-	{% for item in object.getVariants %}
-		<li><a href="{{item.get_absolute_url}}">{{item.name}}</a></li>
+</section>
+<section>
+	<h2 class="widgetHeader">Variants</h2>
+		{% for item in object.getVariants %}
+	<div class="itemWrapper">
+		<i class="fa fa-plus" onclick="openContent(this);"></i>
+		<a href="{{item.get_absolute_url}}">
+			<h2>{{item.name}}</h2>
+		</a>
+		<div class="collapsedContent">
+			<div class="row">
+				<div class="columns small-12 medium-4">
+					<div class="picture" style="background:url('{{ MEDIA_URL }}{{ item.image }}');"></div>
+				</div>
+				<div class="columns small-12 medium-8">
+					<p class="description">{{ item.description }}</p>
+				</div>
+			</div>
+		</div>
+	</div>
 	{% endfor %}
-	</ul>
-	<h2>Invited</h2>
-	<ul>
+</section>	
+<section>
+	<h2 class="widgetHeader">Invited Users</h2>
 	{% for item in object.getInvited %}
 		<li><a href="{% url 'user_detail' item.user.id %}">{{ item.user.username }}</a></li>
 	{% endfor %}
-	</ul>
-	<h2>Members</h2>
-	<ul>
-	{% for item in object.getMembers %}
-		<li><a href="{% url 'user_detail' item.user.id %}">{{ item.user.username }}</a></li>
-	{% endfor %}
-	</ul>
-	<h2>Uninvited</h2>
-	<ul>
+</section>
+<section>
+	<h2 class="widgetHeader">Uninvited Users</h2>
 	{% for item in object.getUninvited %}
 		<li>
 			<a href="{% url 'user_detail' item.id %}">{{ item.username }}</a>
@@ -42,6 +74,8 @@
 			<a href="{% url 'invite_create' object.id item.id %}" onclick="post(this, event, {{ object.id }}, {{ item.id }})">	-->	Invite</a>
 		</li>
 	{% endfor %}
+</section>
+	
 	</ul>
 	<h2>Eval</h2>
 	{{ object.evaluate }}

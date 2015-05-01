@@ -5,6 +5,7 @@ Created on 5.4.2015
 '''
 from django import forms
 from django.forms.models import inlineformset_factory
+from django.forms.widgets import Textarea
 
 from decision.models import CustomUser, Decision, Criteria_Variant
 
@@ -23,8 +24,14 @@ class UserCreationForm(forms.ModelForm):
         return user
 
 class DecisionForm(forms.ModelForm):
+    description = forms.CharField( widget=forms.Textarea )
     class Meta:
         model = Decision
         fields = ('name', 'description', 'image')
         
-CriteriaVariantFormSet = inlineformset_factory(Decision, Criteria_Variant, fields=('name','description', 'image', 'crit_var'), extra=0, min_num=2,)
+CriteriaVariantFormSet = inlineformset_factory(Decision,
+                                               Criteria_Variant,
+                                               fields=('name','description', 'image', 'crit_var'),
+                                               extra=0,
+                                               min_num=2,
+                                               widgets={'description': Textarea})
