@@ -26,7 +26,7 @@ class CustomUserAdmin(UserAdmin):
 #     ordering = ("username",)
 
     fieldsets = UserAdmin.fieldsets + (
-            (None, {'fields': ('image','weight',)}),
+            (None, {'fields': ('image',)}),
     )
 #     add_fieldsets = (
 #         (None, {
