@@ -6,6 +6,11 @@ Created on 8.4.2015
 
 import numpy as np
 import warnings
+import math
+
+def nCr(n,r):
+    f = math.factorial
+    return f(n) / f(r) / f(n-r)
 
 def calcWeightVector(matrix):
     eigenvalues, eigenvector=np.linalg.eig(matrix)

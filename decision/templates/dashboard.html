@@ -2,11 +2,36 @@
 {% block title %}Dashboard{% endblock %}
 {% block header %}Dashboard{% endblock %}
 {% block content %}
+	<section class="decisions">
+		<h2 class="widgetHeader">Decisions</h2>
 	{% for invite in user.getDecisions %}
-	<section class="decision">
-		<h2 class="widgetHeader">{{ invite.decision.name }}</h2>
-	</section>
+		<div class="itemWrapper">
+			<i class="fa fa-plus" onclick="openContent(this);"></i>
+			<a href="{% url 'decision_evaluate' invite.decision.id %}">
+				<h2>{{ invite.decision.name }}</h2>
+				<span>{{ invite.decision.getCompleteness }}</span>
+			</a>
+			<div class="collapsedContent">collapsed</div>
+		</div>
 	{% endfor %}
+	</section>
+	{% with invites=object.getUnrespondedInvites %}
+	{% if invites %}
+	<section class="invites">
+		<h2 class="widgetHeader">Invites</h2>
+		{% for item in invites %}
+			<div class="itemWrapper">
+				<i class="fa fa-plus" onclick="openContent(this);"></i>
+				<a href="{% url 'decision_detail' item.decision.id %}"><h2>{{ item.decision.name }}</h2></a>
+				Stav: {{ item.get_state_display }}
+				<a href="javascript:acceptInvite(event, {{ item.id }})">Prijať</a>
+				<a href="javascript:removeInvite(event, {{ item.id }})">Odmietnuť</a>
+				<div class="collapsedContent">collapsed</div>
+			</div>
+		{% endfor %}
+	</section>
+	{% endif %}
+	{% endwith %}
 {% endblock %}
 {% block javascript %}
 <script>

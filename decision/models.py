@@ -13,7 +13,7 @@ from django.db.models.fields.related import ForeignKey
 from django.utils.timezone import now
 
 from mysite.utils import calcCriteriaWeight, calcVariantsWeightRespectToCriteria, \
-    calcCriteriasWeightRespectToVariant
+    calcCriteriasWeightRespectToVariant, nCr
 import numpy as np
 
 
@@ -22,6 +22,8 @@ class CustomUser(AbstractUser):
     image = ImageField(null=True, blank=True, upload_to="pics/avatars")
     def getInvites(self):
         return self.invite_set.all()
+    def getUnrespondedInvites(self):
+        return self.invite_set.filter(state__in=["SE","SN"])
     def getDecisions(self):
         return self.invite_set.filter(state="AC").select_related('decision')
     
@@ -83,9 +85,23 @@ class Decision(models.Model):
     stage_one_date = DateField(null=True, blank=True)
     stage_two_date = DateField(null=True, blank=True)
     lastVotesCount = IntegerField(null=True, blank=True)
+    lastCompleteness = IntegerField(null=True, blank=True)
     lastResult = CharField(max_length=2000, null=True, blank=True)
     def get_absolute_url(self):
         return reverse('decision_detail', kwargs={'pk': self.pk})
+    def getCompleteness(self):
+        votes = self.vote_set.all()
+        if len(votes) == self.lastVotesCount and self.lastCompleteness is not None:
+            print "cached"
+            return self.lastCompleteness
+        criterias = self.criteria_variant_set.filter(crit_var=False).order_by('name')
+        variants = self.criteria_variant_set.filter(crit_var=True).order_by('name')
+        pairwiseCount = nCr(len(criterias), 2)
+        pairwiseCount += len(criterias) * nCr(len(variants), 2)
+        pairwiseCount += len(variants) * nCr(len(criterias), 2)
+        members = self.invite_set.filter(state="AC")
+        return [pairwiseCount * len(members), len(votes)]
+         
     def getVotes(self):
         return self.vote_set.all().select_related('critVarLeft', 'critVarRight', 'parentCrit').order_by('order')
     def getPairwiseComparison(self):
