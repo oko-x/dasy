@@ -7,17 +7,18 @@
 	{% for invite in user.getDecisionsInvited %}
 		<div class="itemWrapper">
 			<i class="fa fa-plus" onclick="openContent(this);"></i>
-			<a href="{% url 'decision_evaluate' invite.decision.id %}">
+			<a href="{% url 'decision_detail' invite.decision.id %}">
 				<h2>{{ invite.decision.name }}</h2>
 				<span>{{ invite.decision.getCompleteness }}</span>
 			</a>
 			<div class="collapsedContent">collapsed</div>
 		</div>
 	{% endfor %}
+	<h2 class="widgetHeader">My Created Decisions</h2>
 	{% for decision in user.getDecisionsCreated %}
 		<div class="itemWrapper">
 			<i class="fa fa-plus" onclick="openContent(this);"></i>
-			<a href="{% url 'decision_evaluate' decision.id %}">
+			<a href="{% url 'decision_detail' decision.id %}">
 				<h2>{{ decision.name }}</h2>
 				<span>{{ decision.getCompleteness }}</span>
 			</a>

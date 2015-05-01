@@ -23,11 +23,11 @@ class CustomUser(AbstractUser):
     def getInvites(self):
         return self.invite_set.all()
     def getUnrespondedInvites(self):
-        return self.invite_set.filter(state__in=["SE","SN"])
+        return self.invite_set.filter(state__in=["SE","SN"]).select_related('decision')
     def getDecisionsInvited(self):
         return self.invite_set.filter(state="AC").select_related('decision')
     def getDecisionsCreated(self):
-        return self.decision_set.all()
+        return self.decision_set.exclude(invite__state__in=["AC"])
     
 class Invite(models.Model):
     SENT = 'SE'
@@ -110,7 +110,7 @@ class Decision(models.Model):
         members = self.invite_set.filter(state="AC")
         self.lastCompleteness = votesLen
         self.save()
-        decisionValue = DecisionValue(decision=self, votes=votesLen)
+        decisionValue = DecisionValue(decision=self, votes=votesLen, lastResult=self.lastResult)
         decisionValue.save()
         return [pairwiseCount * len(members), self.lastCompleteness]
          
@@ -190,6 +190,7 @@ class DecisionValue(models.Model):
     decision = ForeignKey(Decision)
     date = DateField(default=now)
     votes = IntegerField()
+    lastResult = CharField(max_length=2000, null=True, blank=True)
     
 class Criteria_Variant(models.Model):
     decision = ForeignKey(Decision)
