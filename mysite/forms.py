@@ -27,4 +27,4 @@ class DecisionForm(forms.ModelForm):
         model = Decision
         fields = ('name', 'description', 'image')
         
-CriteriaVariantFormSet = inlineformset_factory(Decision, Criteria_Variant, fields=('name','description', 'image', 'crit_var'), extra=1)
+CriteriaVariantFormSet = inlineformset_factory(Decision, Criteria_Variant, fields=('name','description', 'image', 'crit_var'), extra=0, min_num=2,)
