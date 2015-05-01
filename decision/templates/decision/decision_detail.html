@@ -1,6 +1,9 @@
 {% extends "base.html" %}
-{% block title %}Decision detail{% endblock %}
-{% block header %}Decision detail{% endblock %}
+{% block title %}Detail rozhodovania{% endblock %}
+{% block header %}Detail rozhodovania{% endblock %}
+{% block buttons %}
+<a class="button" title="Pairwise comparisons" href="{% url 'decision_evaluate' object.id %}"><i class="fa fa-sliders"></i></a>
+{% endblock %}
 {% block content %}
 <section>
 	<h2 class="widgetHeader">{{ object.name }}</h2>
@@ -12,9 +15,12 @@
 			<p class="description">{{ object.description }}</p>
 		</div>
 	</div>
+	<div class="row">
+		
+	</div>
 </section>
 <section>
-	<h2 class="widgetHeader">Criterias</h2>
+	<h2 class="widgetHeader">Kritériá</h2>
 	{% for item in object.getCriterias %}
 	<div class="itemWrapper">
 		<i class="fa fa-plus" onclick="openContent(this);"></i>
@@ -35,7 +41,7 @@
 	{% endfor %}
 </section>
 <section>
-	<h2 class="widgetHeader">Variants</h2>
+	<h2 class="widgetHeader">Varianty</h2>
 		{% for item in object.getVariants %}
 	<div class="itemWrapper">
 		<i class="fa fa-plus" onclick="openContent(this);"></i>
@@ -55,28 +61,49 @@
 	</div>
 	{% endfor %}
 </section>	
+{% with invited=object.getInvited %}
+{% if invited %}
 <section>
-	<h2 class="widgetHeader">Invited Users</h2>
-	{% for item in object.getInvited %}
+	<h2 class="widgetHeader">Pozvaní užívatelia</h2>
+	{% for item in invited %}
 		<li><a href="{% url 'user_detail' item.user.id %}">{{ item.user.username }}</a></li>
 	{% endfor %}
 </section>
+{% endif %}
+{% endwith %}
+{% with uninvited=object.getUninvited %}
+{% if uninvited %}
 <section>
-	<h2 class="widgetHeader">Uninvited Users</h2>
-	{% for item in object.getUninvited %}
-		<li>
-			<a href="{% url 'user_detail' item.id %}">{{ item.username }}</a>
-			<select id="userWeight">
-			{% for weight in weights %}
-				<option value="{{weight.0}}">{{weight.1}}</option>
-			{% endfor %}
-			</select>
-			<a href="{% url 'invite_create' object.id item.id %}" onclick="post(this, event, {{ object.id }}, {{ item.id }})">	-->	Invite</a>
-		</li>
+	<h2 class="widgetHeader">Nepozvaní užívatelia</h2>
+	{% for item in uninvited %}
+		<div class="itemWrapper">
+			<i class="fa fa-plus" onclick="openContent(this);"></i>
+			<div class="avatar small" style="background:url('{{ MEDIA_URL }}{{ item.image }}');"></div>
+			<h2>{{ item.username }}</h2>
+			<div class="collapsedContent">
+				<div class="avatar" style="background:url('{{ MEDIA_URL }}{{ item.image }}');"></div>
+				<div class="innerContent">
+					<div class="row">
+						<div class="columns small-12 medium-8">
+							<select id="userWeight">
+								<option value="" disabled selected>Zvoľ odbornosť užívateľa</option>
+							{% for weight in weights %}
+
+								<option value="{{weight.0}}">{{weight.1}}</option>
+							{% endfor %}
+							</select>	
+						</div>
+						<div class="columns small-12 medium-offset-2 medium-2">
+							<a class="button radius tiny" href="{% url 'invite_create' object.id item.id %}" onclick="post(this, event, {{ object.id }}, {{ item.id }})">Invite</a>
+						</div>
+					</div>					
+				</div>
+			</div>
+		</div>
 	{% endfor %}
 </section>
-	
-	</ul>
+{% endif %}
+{% endwith %}
 	<h2>Eval</h2>
 	{{ object.evaluate }}
 <script>
