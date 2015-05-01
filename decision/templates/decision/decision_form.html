@@ -37,7 +37,7 @@
     </div>
 </section>
 <section>
-    <h2 class="widgetHeader">Criterias</h2>
+    <h2 class="widgetHeader">Criterias <small>at least 2 required</small></h2>
     {% for form in crit_form %}
         {{ form.id }}
         <div class="row inline criterias">
@@ -71,7 +71,7 @@
     {{ crit_form.non_form_errors }}
 </section>
 <section>
-    <h2 class="widgetHeader">Variants</h2>
+    <h2 class="widgetHeader">Variants <small>at least 2 required</small></h2>
     {% for form in var_form %}
         {{ form.id }}
         <div class="inline row variants">
