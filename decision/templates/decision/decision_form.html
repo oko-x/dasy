@@ -2,9 +2,10 @@
 {% block title %}Add decision{% endblock %}
 {% block header %}Add decision{% endblock %}
 {% block buttons %}
-<div class="button" onlick="">
-    
+<div class="button" onclick="document.forms['decision_form'].submit()">
+    <i class="fa fa-check"></i>
 </div>
+<a class="button" href="{% url 'dashboard' %}"><i class="fa fa-times"></i></a>
 {% endblock %}
 {% block content %}
 <form id="decision_form" name="decision_form" action="" enctype="multipart/form-data" method="post">
@@ -22,7 +23,7 @@
         </div>
         <div class="small-12 medium-4 columns">
             <div>
-                <label {% if form.description.errors %}class="error"{% endif %}>{{ form.description.label }}
+                <label {% if form.description.errors %}class="error"{% endif %}>{{ form.description.label }} <small>required</small>
                     {{ form.description }}
                 </label>
                 {% if form.description.errors %}<span class="error">{{ form.description.errors }}</span>{% endif %}
@@ -36,9 +37,6 @@
                 {% if form.image.errors %}<span class="error">{{ form.image.errors }}</span>{% endif %}
             </div>    
         </div>
-    </div>
-    <div class="row">
-        <input class="button small" type="submit" value="Add decision" class="submit" />
     </div>
 </section>
 <section>
