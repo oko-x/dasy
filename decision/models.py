@@ -24,8 +24,10 @@ class CustomUser(AbstractUser):
         return self.invite_set.all()
     def getUnrespondedInvites(self):
         return self.invite_set.filter(state__in=["SE","SN"])
-    def getDecisions(self):
+    def getDecisionsInvited(self):
         return self.invite_set.filter(state="AC").select_related('decision')
+    def getDecisionsCreated(self):
+        return self.decision_set.all()
     
 class Invite(models.Model):
     SENT = 'SE'
@@ -79,6 +81,7 @@ class Decision(models.Model):
     )
     name = CharField(max_length=200)
     description = CharField( max_length=200, blank=True)
+    creator = ForeignKey(CustomUser)
     image = ImageField(null=True, blank=True, upload_to="pics/decision")
     state = CharField(max_length=2, choices=STATE_CHOICES, default="NE")
     published = DateField(default=now)
@@ -96,11 +99,20 @@ class Decision(models.Model):
             return self.lastCompleteness
         criterias = self.criteria_variant_set.filter(crit_var=False).order_by('name')
         variants = self.criteria_variant_set.filter(crit_var=True).order_by('name')
-        pairwiseCount = nCr(len(criterias), 2)
-        pairwiseCount += len(criterias) * nCr(len(variants), 2)
-        pairwiseCount += len(variants) * nCr(len(criterias), 2)
+        criteriasLen = len(criterias)
+        variantsLen = len(variants)
+        if criteriasLen < 2 or variantsLen < 2:
+            return
+        votesLen = len(votes)
+        pairwiseCount = nCr(criteriasLen, 2)
+        pairwiseCount += criteriasLen * nCr(variantsLen, 2)
+        pairwiseCount += variantsLen * nCr(criteriasLen, 2)
         members = self.invite_set.filter(state="AC")
-        return [pairwiseCount * len(members), len(votes)]
+        self.lastCompleteness = votesLen
+        self.save()
+        decisionValue = DecisionValue(decision=self, votes=votesLen)
+        decisionValue.save()
+        return [pairwiseCount * len(members), self.lastCompleteness]
          
     def getVotes(self):
         return self.vote_set.all().select_related('critVarLeft', 'critVarRight', 'parentCrit').order_by('order')
@@ -173,6 +185,11 @@ class Decision(models.Model):
 #         print old_priorities
     def __unicode__(self):
         return self.get_state_display() + "_" + self.name
+    
+class DecisionValue(models.Model):
+    decision = ForeignKey(Decision)
+    date = DateField(default=now)
+    votes = IntegerField()
     
 class Criteria_Variant(models.Model):
     decision = ForeignKey(Decision)
