@@ -1,6 +1,6 @@
 {% extends "base.html" %}
-{% block title %}{{ decision.name }}{% endblock %}
-{% block header %}{{ decision.name }}{% endblock %}
+{% block title %}Evaluate: {{ decision.name }}{% endblock %}
+{% block header %}Evaluate: {{ decision.name }}{% endblock %}
 {% block content %}
 <section class="decision">
 	{% for vote in decision.getVotes %}
