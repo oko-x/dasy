@@ -123,16 +123,18 @@ class DecisionCreateView(generic.CreateView):
         crit_form = CriteriaVariantFormSet(self.request.POST, prefix="criterias")
         var_form = CriteriaVariantFormSet(self.request.POST, prefix="variants")
         if (form.is_valid() and crit_form.is_valid() and var_form.is_valid()):
-            return self.form_valid(form, crit_form, var_form)
+            return self.form_valid(form, crit_form, var_form, request)
         else:
             return self.form_invalid(form, crit_form, var_form)
 
-    def form_valid(self, form, crit_form, var_form):
+    def form_valid(self, form, crit_form, var_form, request):
         """
         Called if all forms are valid. and then redirects to a
         success page.
         """
-        self.object = form.save()
+        self.object = form.save(commit=False)
+        self.object.creator = request.user
+        self.object.save()
         crit_form.instance = self.object
         crit_form.save()
         var_form.instance = self.object

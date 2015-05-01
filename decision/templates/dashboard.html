@@ -3,13 +3,23 @@
 {% block header %}Dashboard{% endblock %}
 {% block content %}
 	<section class="decisions">
-		<h2 class="widgetHeader">Decisions</h2>
-	{% for invite in user.getDecisions %}
+		<h2 class="widgetHeader">My Decisions</h2>
+	{% for invite in user.getDecisionsInvited %}
 		<div class="itemWrapper">
 			<i class="fa fa-plus" onclick="openContent(this);"></i>
 			<a href="{% url 'decision_evaluate' invite.decision.id %}">
 				<h2>{{ invite.decision.name }}</h2>
 				<span>{{ invite.decision.getCompleteness }}</span>
+			</a>
+			<div class="collapsedContent">collapsed</div>
+		</div>
+	{% endfor %}
+	{% for decision in user.getDecisionsCreated %}
+		<div class="itemWrapper">
+			<i class="fa fa-plus" onclick="openContent(this);"></i>
+			<a href="{% url 'decision_evaluate' decision.id %}">
+				<h2>{{ decision.name }}</h2>
+				<span>{{ decision.getCompleteness }}</span>
 			</a>
 			<div class="collapsedContent">collapsed</div>
 		</div>
