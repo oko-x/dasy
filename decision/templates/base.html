@@ -4,7 +4,7 @@
 		<meta charset="utf-8" />
     	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<title>Dasy - {% block title %}{% endblock %}</title>
+		<title>{% block title %}{% endblock %} | Dasy</title>
 		{% block head %}{% endblock %}
 		<link rel="stylesheet" href="{{ STATIC_URL }}css/app.css" />
 		<link rel="stylesheet" href="{{ STATIC_URL }}css/font-awesome.min.css" />
@@ -21,7 +21,7 @@
 				{% url 'dashboard' as url %}
 				<li><a href="{{ url }}" {% if request.path == url %} class="active"{% endif %}><i class="fa fa-dashboard"></i>Dashboard</a></li>
 				{% url 'decision_create' as url %}
-				<li><a href="{{ url }}" {% if request.path == url %} class="active"{% endif %}><i class="fa fa-plus-circle"></i>Add decision</a></li>
+				<li><a href="{{ url }}" {% if request.path == url %} class="active"{% endif %}><i class="fa fa-plus-circle"></i>pridať rozhodovanie</a></li>
 			</ul>
 		</nav>
 		<div class="contentWrapper">

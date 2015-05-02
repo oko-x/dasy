@@ -54,8 +54,9 @@ def voteAdd(request):
     criteriaParentId = request.POST['criteriaParentId']
     order = request.POST['order']
     value = request.POST['value']
+
     invite = Invite.objects.filter(decision__id=decisionId, user=request.user)
-    weight = invite[0].weight 
+    weight = invite[0].weight
     if criteriaParentId != "":
         parentCrit = Criteria_Variant.objects.get(pk=criteriaParentId)
     else:
@@ -90,6 +91,7 @@ class DecisionDetailView(generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super(DecisionDetailView, self).get_context_data(**kwargs)
         context['weights'] = Invite.WEIGHT_CHOICES
+        context['wasInvited'] = self.object.invite_set.filter(user=self.request.user)
         return context
     
 class DecisionCreateView(generic.CreateView):

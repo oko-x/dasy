@@ -203,6 +203,7 @@ class Criteria_Variant(models.Model):
     
 class Vote(models.Model):
     DEFINETLY_LEFT = 9
+    OSEM = 8
     LEFT = 7
     SEST = 6
     PROBABLY_LEFT = 5
@@ -216,22 +217,25 @@ class Vote(models.Model):
     PROBABLY_RIGHT = 0.2
     SESTINA = 0.166666
     RIGHT = 0.142857
+    OSMINA = 0.125
     DEFINETLY_RIGHT = 0.111111
     VOTE_CHOICES = (
         (DEFINETLY_LEFT, u'Jednoznačne Ľavé'),
+        (OSEM, u'OSEM'),
         (LEFT, u'Ľavé'),
         (SEST, u'SEST'),
         (PROBABLY_LEFT, u'Skôr Ľavé'),
         (STYRI, u'STYRI'),
         (MORE_LEFT, u'Asi Ľavé'),
         (DVA, u'DVA'),
-        (SAME, u'Rovnaké'),
+        (SAME, u'Sú rovnaké'),
         (POLOVICA, u'POLOVICA'),
         (MORE_RIHT, u'Asi pravé'),
         (STVRTINA, u'STVRTINA'),
         (PROBABLY_RIGHT, u'Skôr pravé'),
         (SESTINA, u'SESTINA'),
         (RIGHT, u'Pravé'),
+        (OSMINA, u'OSMINA'),
         (DEFINETLY_RIGHT, u'Jednoznačne pravé'),
     )
     ROOKIE = 2

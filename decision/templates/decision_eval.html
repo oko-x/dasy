@@ -1,44 +1,48 @@
 {% extends "base.html" %}
-{% block title %}Evaluate: {{ decision.name }}{% endblock %}
-{% block header %}Evaluate: {{ decision.name }}{% endblock %}
+{% block title %}Hodnotenie: {{ decision.name }}{% endblock %}
+{% block header %}Hodnotenie: {{ decision.name }}{% endblock %}
 {% block content %}
-<section class="decision">
+<section class="voteSlider">
+	<ul class="slides">
 	{% for vote in decision.getVotes %}
-		<div class="vote" data-vote-id="{{ vote }}">
+		<li class="voteItem vote" data-vote-id="{{ vote }}">
 		{% if vote.parentCrit %}
-			<h3>{{ vote.parentCrit }}</h3>
+			<h2 class="widgetHeader">{{ vote.parentCrit }}
+		{% else %}
+			<h2 class="widgetHeader">Ktoré kritérium medzi
 		{% endif %}
-			{{ vote }}
+			{{ vote.critVarLeft.name }} a {{ vote.critVarRight.name }} je vzhľadom na celkový cieľ dôležitejšie?</h2>
 			<form class="editForm" data-vote-id="{{vote.pk}}">
 				{% for choice in choices %}
 					<label>
-						<input type="radio" name="{{vote.pk}}" value="{{ choice.0 }}" {% if vote.value == choice.0 %}checked{%endif%}>{{ choice.1 }}
+						<input type="radio" name="{{vote.pk}}" value="{{ choice.0 }}" {% if vote.value == choice.0 %}checked{%endif%}>{% if forloop.counter0|divisibleby:2 %}{{ choice.1 }}{% endif %}
 					</label>
 				{% endfor %}
 				<input type="submit" value="Ok">
 			</form>
-		</div>
+		</li>
 	{% endfor %}
 	{% for wrapper in decision.getPairwiseComparison %}
 		{% for criteria in wrapper.1 %}
 		{% if wrapper.0 %}
-			<div class="toVote {{ wrapper.0 }}_{{criteria.0}}-{{criteria.1}}">
-			<h3>{{ wrapper.0 }}</h3>
+			<li class="voteItem toVote {{ wrapper.0 }}_{{criteria.0}}-{{criteria.1}}">
+			<h2 class="widgetHeader">{{ wrapper.0 }}</h2>
 		{% else %}
-			<div class="toVote {{criteria.0}}-{{criteria.1}}">
+			<li class="toVote {{criteria.0}}-{{criteria.1}}">
 		{% endif %}
 			{{ criteria.0 }} - {{ criteria.1 }} </br>
 			<form class="createForm" data-order data-decision-id="{{decision.pk}}" data-criteria-parent-id="{{wrapper.0.pk}}" data-criteria-left-id="{{ criteria.0.pk }}" data-criteria-right-id="{{ criteria.1.pk }}">
 			{% for choice in choices %}
 				<label>
-					<input type="radio" name="{{ criteria.0 }}-{{ criteria.1 }}" value="{{ choice.0 }}" >{{ choice.1 }}
+					<input type="radio" name="{{ criteria.0 }}-{{ criteria.1 }}" value="{{ choice.0 }}" >{% if forloop.counter0|divisibleby:2 %}{{ choice.1 }}{% endif %}
 				</label>
 			{% endfor %}
 			<input type="submit" value="Ok">
 			</form>
-		</div>
+		</li>
 		{% endfor %}
 	{% endfor %}
+	</ul>
 </section>
 {% endblock %}
 {% block javascript %}
@@ -46,6 +50,8 @@
 	$(document).ready(function(){
 		$(".editForm").submit(function(e){
 			e.preventDefault();
+			$('.voteSlider').flexslider('next');
+
 			$.post(
 				"{% url 'vote_edit' %}",
 				{ 
@@ -54,7 +60,7 @@
 					csrfmiddlewaretoken: '{{ csrf_token }}' 
 				},
 				function(data){
-					alert(data);
+					handleData(data);
 				}
 			);
 
@@ -64,6 +70,7 @@
 		});
 		$(".createForm").submit(function(e){
 			e.preventDefault();
+			$('.voteSlider').flexslider('next');
 
 			$.post(
 				"{% url 'vote_add' %}",
@@ -77,16 +84,43 @@
 					csrfmiddlewaretoken: '{{ csrf_token }}' 
 				},
 				function(data){
-					alert(data);
+					handleData(data);
 				}
 			);
 
 		});
-		$(".decision").each(function(index, value){
-			$(this).find(".vote").each(function(i, val){
-				$("."+$(this).data("vote-id")).hide();
-			});
+		$(".vote").each(function(i, val){
+			$("."+$(this).data("vote-id")).remove();
+		});
+		$('.voteSlider').flexslider({
+			animation: "slide",
+			// controlNav: false,
+			animationLoop: false,
+			slideshow: false,
+			// smoothHeight: true,
+			directionNav: false,
+			after: function(slider){
+	        },
+	        start: function(slider){
+	        }
 		});
 	});
+function handleData(data){
+	var target = $("<div class='alert-box success decisionEval'>"+data+"</div>");
+	var button = $("<a href='#' class='close'>&times;</a>").click(function(){
+		$(this).parent().slideUp(300, function(){
+			$(this).remove();
+		});
+	});
+	target.append(button).prependTo("body");
+	target.slideUp(0, function(){
+		$(this).slideDown(300);
+	});
+	setTimeout(function(){
+		target.slideUp(300, function(){
+			$(this).remove();
+		});
+	}, 3000);
+}
 </script>
 {% endblock %}

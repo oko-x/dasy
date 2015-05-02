@@ -91,7 +91,7 @@ else:
             'USER':    'adminhh9rze7',
             'PASSWORD':'hB3VCyByGnH_',
             'HOST':    'localhost',
-            'PORT':    '63911',
+            'PORT':    '64277',
         }
     }
 

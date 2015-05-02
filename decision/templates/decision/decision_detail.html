@@ -2,7 +2,7 @@
 {% block title %}Detail rozhodovania{% endblock %}
 {% block header %}Detail rozhodovania{% endblock %}
 {% block buttons %}
-<a class="button" title="Pairwise comparisons" href="{% url 'decision_evaluate' object.id %}"><i class="fa fa-sliders"></i></a>
+{% if wasInvited %}<a class="button" title="Pairwise comparisons" href="{% url 'decision_evaluate' object.id %}"><i class="fa fa-sliders"></i></a>{% endif %}
 {% endblock %}
 {% block content %}
 <section>
@@ -14,9 +14,6 @@
 		<div class="columns small-12 medium-8">
 			<p class="description">{{ object.description }}</p>
 		</div>
-	</div>
-	<div class="row">
-		
 	</div>
 </section>
 <section>
@@ -66,7 +63,23 @@
 <section>
 	<h2 class="widgetHeader">Pozvaní užívatelia</h2>
 	{% for item in invited %}
-		<li><a href="{% url 'user_detail' item.user.id %}">{{ item.user.username }}</a></li>
+		<div class="itemWrapper">
+			<i class="fa fa-plus" onclick="openContent(this);"></i>
+			<div class="avatar small" style="background:url('{{ MEDIA_URL }}{{ item.image }}');"></div>
+			<h2>{{ item.user.username }}</h2>
+			<div class="collapsedContent">
+				<div class="avatar" style="background:url('{{ MEDIA_URL }}{{ item.image }}');"></div>
+				<div class="innerContent">
+					<div class="row">
+						<div class="columns small-12 medium-8">
+							{{ item.get_weight_display  }}
+						</div>
+						<div class="columns small-12 medium-offset-2 medium-2">
+						</div>
+					</div>					
+				</div>
+			</div>
+		</div>
 	{% endfor %}
 </section>
 {% endif %}
