@@ -18,7 +18,7 @@ def inviteCreate(request, decision_id=None, user_id=None):
     i = Invite(user=CustomUser.objects.get(pk=user_id),
                weight=user_weight,
                decision=Decision.objects.get(pk=decision_id),
-               state="SE")
+               state="AC")
     i.save()
     if request.is_ajax():
         return HttpResponse("Invite sent")
@@ -91,7 +91,7 @@ class DecisionDetailView(generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super(DecisionDetailView, self).get_context_data(**kwargs)
         context['weights'] = Invite.WEIGHT_CHOICES
-        context['wasInvited'] = self.object.invite_set.filter(user=self.request.user)
+        context['wasInvited'] = self.object.invite_set.filter(user=self.request.user, state="AC")
         return context
     
 class DecisionCreateView(generic.CreateView):

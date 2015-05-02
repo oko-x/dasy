@@ -2,7 +2,8 @@
 {% block title %}Detail rozhodovania{% endblock %}
 {% block header %}Detail rozhodovania{% endblock %}
 {% block buttons %}
-{% if wasInvited %}<a class="button" title="Pairwise comparisons" href="{% url 'decision_evaluate' object.id %}"><i class="fa fa-sliders"></i></a>{% endif %}
+<a class="button" title="Späť na dashboard" href="{% url 'dashboard' %}"><i class="fa fa-times"></i></a>
+{% if wasInvited %}<a class="button" title="Párové porovnania" href="{% url 'decision_evaluate' object.id %}"><i class="fa fa-sliders"></i></a>{% endif %}
 {% endblock %}
 {% block content %}
 <section>
