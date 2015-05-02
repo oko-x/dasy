@@ -14,7 +14,6 @@
 			<div class="collapsedContent">collapsed</div>
 		</div>
 	{% endfor %}
-	<h2 class="widgetHeader">My Created Decisions</h2>
 	{% for decision in user.getDecisionsCreated %}
 		<div class="itemWrapper">
 			<i class="fa fa-plus" onclick="openContent(this);"></i>
@@ -35,8 +34,8 @@
 				<i class="fa fa-plus" onclick="openContent(this);"></i>
 				<a href="{% url 'decision_detail' item.decision.id %}"><h2>{{ item.decision.name }}</h2></a>
 				Stav: {{ item.get_state_display }}
-				<a href="javascript:acceptInvite(event, {{ item.id }})">Prijať</a>
-				<a href="javascript:removeInvite(event, {{ item.id }})">Odmietnuť</a>
+				<a class="button tiny success" href="javascript:acceptInvite(event, {{ item.id }})"><i class="fa fa-check"></i></a>
+				<a class="button tiny alert" href="javascript:removeInvite(event, {{ item.id }})"><i class="fa fa-times"></i></a>
 				<div class="collapsedContent">collapsed</div>
 			</div>
 		{% endfor %}
@@ -46,7 +45,30 @@
 {% endblock %}
 {% block javascript %}
 <script>
-	
+	function acceptInvite(event, inviteId){
+		$.post(
+			"{% url 'invite_accept' %}",
+			{ 
+				inviteId: inviteId, 
+				csrfmiddlewaretoken: '{{ csrf_token }}' 
+			},
+			function(data){
+				handleData(data);
+			}
+		);
+	}
+	function removeInvite(event, inviteId){
+		$.post(
+			"{% url 'invite_remove' %}",
+			{ 
+				inviteId: inviteId, 
+				csrfmiddlewaretoken: '{{ csrf_token }}' 
+			},
+			function(data){
+				handleData(data);
+			}
+		);
+	}	
 	
 </script>
 {% endblock %}
