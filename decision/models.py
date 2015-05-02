@@ -220,23 +220,23 @@ class Vote(models.Model):
     OSMINA = 0.125
     DEFINETLY_RIGHT = 0.111111
     VOTE_CHOICES = (
-        (DEFINETLY_LEFT, u'Jednoznačne Ľavé'),
+        (DEFINETLY_LEFT, u'Jednoznačne ľav'),
         (OSEM, u'OSEM'),
-        (LEFT, u'Ľavé'),
+        (LEFT, u'Ľav'),
         (SEST, u'SEST'),
-        (PROBABLY_LEFT, u'Skôr Ľavé'),
+        (PROBABLY_LEFT, u'Skôr ľav'),
         (STYRI, u'STYRI'),
-        (MORE_LEFT, u'Asi Ľavé'),
+        (MORE_LEFT, u'Asi ľav'),
         (DVA, u'DVA'),
         (SAME, u'Sú rovnaké'),
         (POLOVICA, u'POLOVICA'),
-        (MORE_RIHT, u'Asi pravé'),
+        (MORE_RIHT, u'Asi prav'),
         (STVRTINA, u'STVRTINA'),
-        (PROBABLY_RIGHT, u'Skôr pravé'),
+        (PROBABLY_RIGHT, u'Skôr prav'),
         (SESTINA, u'SESTINA'),
-        (RIGHT, u'Pravé'),
+        (RIGHT, u'Prav'),
         (OSMINA, u'OSMINA'),
-        (DEFINETLY_RIGHT, u'Jednoznačne pravé'),
+        (DEFINETLY_RIGHT, u'Jednoznačne prav'),
     )
     ROOKIE = 2
     TRAINEE = 4

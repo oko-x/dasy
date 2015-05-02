@@ -1,45 +1,59 @@
 {% extends "base.html" %}
 {% block title %}Hodnotenie: {{ decision.name }}{% endblock %}
 {% block header %}Hodnotenie: {{ decision.name }}{% endblock %}
+{% block buttons %}
+<a class="button" title="Hotovo" href="{% url 'decision_detail' decision.id %}"><i class="fa fa-check"></i></a>
+{% endblock %}
 {% block content %}
 <section class="voteSlider">
 	<ul class="slides">
 	{% for vote in decision.getVotes %}
 		<li class="voteItem vote" data-vote-id="{{ vote }}">
-		{% if vote.parentCrit %}
-			<h2 class="widgetHeader">{{ vote.parentCrit }}
+		{% with isCriteria=vote.parentCrit.crit_var %}
+		{% with hasParent=vote.parentCrit %}
+		{% if hasParent %}
+			<h2 class="widgetHeader">{% if isCriteria %}Ktoré kritérium{% else %}Ktorý variant{% endif %} {% if isCriteria %}je pri variante {{ vote.parentCrit }} lepšie{% else %}je vzhľadom na kritérium {{ vote.parentCrit }} lepší{% endif %}?</h2>
 		{% else %}
-			<h2 class="widgetHeader">Ktoré kritérium medzi
+			<h2 class="widgetHeader">Ktoré kritérium je vzhľadom na celkový cieľ dôležitejšie?</h2>
 		{% endif %}
-			{{ vote.critVarLeft.name }} a {{ vote.critVarRight.name }} je vzhľadom na celkový cieľ dôležitejšie?</h2>
+			<h4 class="evalHeader">{{ vote.critVarLeft.name }}<small> alebo </small>{{ vote.critVarRight.name }}</h4>
 			<form class="editForm" data-vote-id="{{vote.pk}}">
 				{% for choice in choices %}
-					<label>
-						<input type="radio" name="{{vote.pk}}" value="{{ choice.0 }}" {% if vote.value == choice.0 %}checked{%endif%}>{% if forloop.counter0|divisibleby:2 %}{{ choice.1 }}{% endif %}
+					<input type="radio" id="vote_{{vote.pk}}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" name="{{vote.pk}}" value="{{ choice.0 }}" {% if vote.value == choice.0 %}checked{%endif%}>
+					<label for="vote_{{vote.pk}}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}">
+						{% if forloop.counter0|divisibleby:2 %}{{ choice.1 }}{% if not forloop.counter == 9 %}{% if not hasParent %}é{% else %}{% if isCriteria %}é{% else %}ý{% endif %}{% endif %}{% endif %}{% endif %}
 					</label>
 				{% endfor %}
-				<input type="submit" value="Ok">
+				<input type="submit" value="">
 			</form>
 		</li>
+		{% endwith %}
+		{% endwith %}
 	{% endfor %}
 	{% for wrapper in decision.getPairwiseComparison %}
 		{% for criteria in wrapper.1 %}
-		{% if wrapper.0 %}
+		{% with isCriteria=wrapper.0.crit_var %}
+		{% with hasParent=wrapper.0 %}
+		{% if hasParent %}
 			<li class="voteItem toVote {{ wrapper.0 }}_{{criteria.0}}-{{criteria.1}}">
-			<h2 class="widgetHeader">{{ wrapper.0 }}</h2>
+			<h2 class="widgetHeader">{% if isCriteria %}Ktoré kritérium{% else %}Ktorý variant{% endif %} {% if isCriteria %}je pri variante {{ wrapper.0 }} lepšie{% else %}je vzhľadom na kritérium {{ wrapper.0 }} lepší{% endif %}?</h2>
 		{% else %}
-			<li class="toVote {{criteria.0}}-{{criteria.1}}">
+			<li class="voteItem toVote {{criteria.0}}-{{criteria.1}}">
+			<h2 class="widgetHeader">Ktoré kritérium je vzhľadom na celkový cieľ dôležitejšie?</h2>
 		{% endif %}
-			{{ criteria.0 }} - {{ criteria.1 }} </br>
+			<h4 class="evalHeader">{{ criteria.0 }}<small> alebo </small>{{ criteria.1 }}</h4>
 			<form class="createForm" data-order data-decision-id="{{decision.pk}}" data-criteria-parent-id="{{wrapper.0.pk}}" data-criteria-left-id="{{ criteria.0.pk }}" data-criteria-right-id="{{ criteria.1.pk }}">
 			{% for choice in choices %}
-				<label>
-					<input type="radio" name="{{ criteria.0 }}-{{ criteria.1 }}" value="{{ choice.0 }}" >{% if forloop.counter0|divisibleby:2 %}{{ choice.1 }}{% endif %}
+				<input type="radio" id="toVote_{{ criteria.0 }}-{{ criteria.1 }}_{{ forloop.parentloop.parentloop.counter }}_{{ forloop.counter }}" name="{{ criteria.0 }}-{{ criteria.1 }}" value="{{ choice.0 }}" >
+				<label for="toVote_{{ criteria.0 }}-{{ criteria.1 }}_{{ forloop.parentloop.parentloop.counter }}_{{ forloop.counter }}">
+					{% if forloop.counter0|divisibleby:2 %}{{ choice.1 }}{% if not forloop.counter == 9 %}{% if not hasParent %}é{% else %}{% if isCriteria %}é{% else %}ý{% endif %}{% endif %}{% endif %}{% endif %}
 				</label>
 			{% endfor %}
-			<input type="submit" value="Ok">
+			<input type="submit" value="">
 			</form>
 		</li>
+		{% endwith %}
+		{% endwith %}
 		{% endfor %}
 	{% endfor %}
 	</ul>
@@ -105,22 +119,5 @@
 	        }
 		});
 	});
-function handleData(data){
-	var target = $("<div class='alert-box success decisionEval'>"+data+"</div>");
-	var button = $("<a href='#' class='close'>&times;</a>").click(function(){
-		$(this).parent().slideUp(300, function(){
-			$(this).remove();
-		});
-	});
-	target.append(button).prependTo("body");
-	target.slideUp(0, function(){
-		$(this).slideDown(300);
-	});
-	setTimeout(function(){
-		target.slideUp(300, function(){
-			$(this).remove();
-		});
-	}, 3000);
-}
 </script>
 {% endblock %}
