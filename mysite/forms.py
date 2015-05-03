@@ -24,7 +24,7 @@ class UserCreationForm(forms.ModelForm):
         return user
 
 class DecisionForm(forms.ModelForm):
-    description = forms.CharField( widget=forms.Textarea )
+    description = forms.CharField( widget=forms.Textarea(attrs={'rows':4,}) )
     class Meta:
         model = Decision
         fields = ('name', 'description', 'image')
@@ -34,4 +34,4 @@ CriteriaVariantFormSet = inlineformset_factory(Decision,
                                                fields=('name','description', 'image', 'crit_var'),
                                                extra=0,
                                                min_num=2,
-                                               widgets={'description': Textarea})
+                                               widgets={'description': Textarea(attrs={'rows':4,})})

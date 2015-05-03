@@ -13,7 +13,7 @@
 {{ form.management_form }}
 <section>
     <div class="row">
-        <div class="small-12 medium-4 columns">
+        <div class="small-12 medium-4">
             <div class="name-field">
                 <label {% if form.name.errors %}class="error"{% endif %}>{{ form.name.label }} <small>required</small>
                     {{ form.name }}
@@ -21,7 +21,7 @@
                 {% if form.name.errors %}<span class="error">{{ form.name.errors }}</span>{% endif %}
             </div>    
         </div>
-        <div class="small-12 medium-4 columns">
+        <div class="small-12 medium-4">
             <div>
                 <label {% if form.description.errors %}class="error"{% endif %}>{{ form.description.label }} <small>required</small>
                     {{ form.description }}
@@ -29,7 +29,7 @@
                 {% if form.description.errors %}<span class="error">{{ form.description.errors }}</span>{% endif %}
             </div>    
         </div>
-        <div class="small-12 medium-4 columns">
+        <div class="small-12 medium-4">
             <div>
                 <label {% if form.image.errors %}class="error"{% endif %}>{{ form.image.label }}
                     {{ form.image }}
@@ -41,71 +41,63 @@
 </section>
 <section>
     <h2 class="widgetHeader">Criterias <small>at least 2 required</small></h2>
+    <div class="row">
     {% for form in crit_form %}
         {{ form.id }}
-        <div class="row inline criterias">
-            <div class="small-12 medium-4 columns">
+            <div class="inline criterias small-12 medium-4 columns">
                 <div class="name-field">
                     <label {% if form.name.errors %}class="error"{% endif %}>{{ form.name.label }} <small>required</small>
                         {{ form.name }}
                     </label>
                     {% if form.name.errors %}<span class="error">{{ form.name.errors }}</span>{% endif %}
                 </div>    
-            </div>
-            <div class="small-12 medium-4 columns">
                 <div>
                     <label {% if form.description.errors %}class="error"{% endif %}>{{ form.description.label }}
                         {{ form.description }}
                     </label>
                     {% if form.description.errors %}<span class="error">{{ form.description.errors }}</span>{% endif %}
-                </div>    
-            </div>
-            <div class="small-12 medium-4 columns">
+                </div>  
                 <div>
                     <label {% if form.image.errors %}class="error"{% endif %}>{{ form.image.label }}
                         {{ form.image }}
                     </label>
                     {% if form.image.errors %}<span class="error">{{ form.image.errors }}</span>{% endif %}
-                </div>    
+                </div>  
             </div>
-        </div>
     {% endfor %}
+    </div>
     {{ crit_form.management_form }}
     {{ crit_form.non_form_errors }}
 </section>
 <section>
     <h2 class="widgetHeader">Variants <small>at least 2 required</small></h2>
+    <div class="row">
     {% for form in var_form %}
         {{ form.id }}
-        <div class="inline row variants">
-            <div class="small-12 medium-4 columns">
+            <div class="inline variants small-12 medium-4 columns">
                 <div class="name-field">
                     <label {% if form.name.errors %}class="error"{% endif %}>{{ form.name.label }} <small>required</small>
                         {{ form.name }}
                     </label>
                     {% if form.name.errors %}<span class="error">{{ form.name.errors }}</span>{% endif %}
-                </div>    
-            </div>
-            <div class="small-12 medium-4 columns">
+                </div>   
                 <div>
                     <label {% if form.description.errors %}class="error"{% endif %}>{{ form.description.label }}
                         {{ form.description }}
                     </label>
                     {% if form.description.errors %}<span class="error">{{ form.description.errors }}</span>{% endif %}
-                </div>    
-            </div>
-            <div class="small-12 medium-4 columns">
+                </div>  
                 <div>
                     <label {% if form.image.errors %}class="error"{% endif %}>{{ form.image.label }}
                         {{ form.image }}
                     </label>
                     {% if form.image.errors %}<span class="error">{{ form.image.errors }}</span>{% endif %}
-                </div>    
+                </div>      
             </div>
-        </div>
     {% endfor %}
     {{ var_form.management_form }}
     {{ var_form.non_form_errors }}
+    </div>
 </section>
 </form>
 {% endblock %}

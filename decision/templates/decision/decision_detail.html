@@ -88,8 +88,10 @@
 		<i class="fa fa-plus" onclick="openContent(this);"></i>
 		<a href="{{item.get_absolute_url}}">
 			<h2>{{item.0.name}}</h2>
-
 		</a>
+		<span class="key">hodnotenie</span>
+		<span class="value">{{ item.1 }}</span>
+		<span class="symbol"> %</span>
        <span>{{item.1}}</span>
 		<div class="collapsedContent">
 			<div class="row">
