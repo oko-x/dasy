@@ -7,7 +7,7 @@
 {% block content %}
 <section class="voteSlider">
 	<ul class="slides">
-	{% for vote in decision.getVotes %}
+	{% for vote in votes %}
 		<li class="voteItem vote" data-vote-id="{{ vote }}">
 		{% with isCriteria=vote.parentCrit.crit_var %}
 		{% with hasParent=vote.parentCrit %}

@@ -6,16 +6,44 @@
 {% if wasInvited %}<a class="button" title="Párové porovnania" href="{% url 'decision_evaluate' object.id %}"><i class="fa fa-sliders"></i></a>{% endif %}
 {% endblock %}
 {% block content %}
+{% with completeness=object.getDecisionDetailData %}
 <section>
 	<h2 class="widgetHeader">{{ object.name }}</h2>
 	<div class="row">
 		<div class="columns small-12 medium-4">
 			<div class="picture" style="background:url('{{ MEDIA_URL }}{{ object.image }}');"></div>
 		</div>
-		<div class="columns small-12 medium-8">
-			<p class="description">{{ object.description }}</p>
+		<div class="columns small-12 medium-4">
+			<div class="row">
+				<h3 class="columns subsectionHeader">Popis</h3>
+				<div class="columns small-12">
+					<p class="description">{{ object.description }}</p>
+				</div>	
+			</div>
+			<div class="row">
+				<h3 class="columns subsectionHeader">Info</h3>
+				<div class="columns small-12">
+					<div class="pair">
+						<span class="key">Vytvorené</span><span class="value">{{ decision.published }}</span>
+					</div>
+					<div class="pair">
+						<span class="key">Úplnosť</span><span class="value">{{ completeness.4 }}</span><span class="symbol"> %</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="columns small-12 medium-4 resultChartWrapper" data-completeness="{{ completeness.4 }}">
+			<canvas id="resultChart"></canvas>
 		</div>
 	</div>
+</section>
+<section>
+	<h2 class="widgetHeader">Vývoj počtu hlasov</h2>
+	<canvas id="resultEvolutionChart"></canvas>
+</section>
+<section>
+	<h2 class="widgetHeader">Vyhodnotenie dôležitosti kritérií</h2>
+	<canvas id="criteriaChart"></canvas>
 </section>
 <section>
 	<h2 class="widgetHeader">Kritériá</h2>
@@ -45,7 +73,13 @@
 		<i class="fa fa-plus" onclick="openContent(this);"></i>
 		<a href="{{item.get_absolute_url}}">
 			<h2>{{item.name}}</h2>
+
 		</a>
+		{% for variantValue in completeness.2 %}
+			{% if forloop.counter == forloop.parentloop.counter %}
+		       <span>{{variantValue}}</span>
+		    {% endif %}
+		{% endfor %}
 		<div class="collapsedContent">
 			<div class="row">
 				<div class="columns small-12 medium-4">
@@ -74,6 +108,7 @@
 					<div class="row">
 						<div class="columns small-12 medium-8">
 							{{ item.get_weight_display  }}
+							{{ item.get_state_display  }}
 						</div>
 						<div class="columns small-12 medium-offset-2 medium-2">
 						</div>
@@ -108,7 +143,7 @@
 							</select>	
 						</div>
 						<div class="columns small-12 medium-offset-2 medium-2">
-							<a class="button radius tiny" href="{% url 'invite_create' object.id item.id %}" onclick="post(this, event, {{ object.id }}, {{ item.id }})">Invite</a>
+							<a class="button radius tiny" href="{% url 'invite_create' object.id item.id %}" onclick="post(this, event, {{ object.id }}, {{ item.id }})">Pozvať</a>
 						</div>
 					</div>					
 				</div>
@@ -117,19 +152,118 @@
 	{% endfor %}
 </section>
 {% endif %}
-{% endwith %}
-	<h2>Eval</h2>
-	{{ object.evaluate }}
 <script>
+	var completeness = {{ completeness.1 }};
+	var remainder = {{ completeness.0 }};
+	var voteEvolutionData = {
+		labels: [
+			{% for eventDay in completeness.3 %}
+				"{{ eventDay.date }}",
+			{% endfor %}
+		],
+		datasets: [{
+		 	label: "Počet hlasov",
+            fillColor: "rgba(62, 180, 198, 0.2)",
+            strokeColor: "#3eb4c6",
+            pointColor: "#45c8dc",
+            pointStrokeColor: "#eff0f0",
+            pointHighlightFill: "#fff",
+            pointHighlightStroke: "rgba(220,220,220,1)",
+            data: [
+            	{% for eventDay in completeness.3 %}
+					"{{ eventDay.votes }}",
+				{% endfor %}
+            ]
+		},]
+
+	};
+</script>
+{% endwith %}
+{% endwith %}
+{% endblock %}
+{% block javascript %}
+<script>
+{% with graphData=object.getDetailGraphData %}
+$(document).ready(function(){
+	var resultChartCanvas = document.getElementById("resultChart").getContext("2d");
+	var resultChartEvolutionCanvas = document.getElementById("resultEvolutionChart").getContext("2d");
+	var criteriaChartCanvas = document.getElementById("criteriaChart").getContext("2d");
+	var options = {
+	    //Boolean - Whether we should show a stroke on each segment
+	    segmentShowStroke : true,
+
+	    //String - The colour of each segment stroke
+	    segmentStrokeColor : "#eff0f0",
+
+	    //Number - The width of each segment stroke
+	    segmentStrokeWidth : 2,
+
+	    //Number - The percentage of the chart that we cut out of the middle
+	    percentageInnerCutout : 70, // This is 0 for Pie charts
+
+	    //Number - Amount of animation steps
+	    animationSteps : 50,
+
+	    //String - Animation easing effect
+	    animationEasing : "ease",
+
+	    //Boolean - Whether we animate the rotation of the Doughnut
+	    animateRotate : true,
+
+	    //Boolean - Whether we animate scaling the Doughnut from the centre
+	    animateScale : false,
+	}
+	var resultData = [
+	    {
+	        value: completeness,
+	        color:"#3eb4c6",
+	        highlight: "#45c8dc",
+	        label: "Vyplnených porovnaní"
+	    },
+	    {
+	        value: remainder,
+	        color: "#53565E",
+	        highlight: "#7C7E84",
+	        label: "Ešte zostáva"
+	    },
+	]
+	var criteriaData = {
+	    labels: [
+	    {% for item in graphData.0 %}
+	    	"{{item.0}}",
+	    {% endfor %}
+	    ],
+	    datasets: [
+	        {
+	            label: "Criteria",
+	            fillColor: "rgba(62, 180, 198, 0.2)",
+	            strokeColor: "#3eb4c6",
+	            pointColor: "#45c8dc",
+	            pointStrokeColor: "#eff0f0",
+	            pointHighlightFill: "#fff",
+	            pointHighlightStroke: "rgba(220,220,220,1)",
+	            data: [
+	            {% for item in graphData.0 %}
+	    			{{item.1}},
+			    {% endfor %}
+			    ]
+	        },
+	    ]
+	};
+	var resultChart = new Chart(resultChartCanvas).Doughnut(resultData,options);
+	var resultChartEvolution = new Chart(resultChartEvolutionCanvas).Line(voteEvolutionData, options);
+	var criteriaChart = new Chart(criteriaChartCanvas).Radar(criteriaData, options);
+});
 function post(link, event, decision_id, user_id){
 	event.preventDefault();
 	$.post(
 		"{% url 'invite_create' %}", 
 		{ decision_id: decision_id, user_id: user_id, user_weight: $("#userWeight").val(), csrfmiddlewaretoken: '{{ csrf_token }}' },
 		function(data){
-			alert(data);
+			handleData(data);
 		}
 	);
 }
 </script>
+{% endwith %}
 {% endblock %}

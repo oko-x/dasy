@@ -15,10 +15,14 @@ def inviteCreate(request, decision_id=None, user_id=None):
         decision_id = request.POST['decision_id']
         user_id = request.POST['user_id']
         user_weight = request.POST['user_weight']
+    if user_id == str(request.user.id):
+        state = "AC"
+    else:
+        state = "SE"
     i = Invite(user=CustomUser.objects.get(pk=user_id),
                weight=user_weight,
                decision=Decision.objects.get(pk=decision_id),
-               state="AC")
+               state=state)
     i.save()
     if request.is_ajax():
         return HttpResponse("Invite sent")
@@ -191,7 +195,9 @@ class DecisionEvaluateView(generic.TemplateView):
         context = super(DecisionEvaluateView, self).get_context_data(**kwargs)
         context['object'] = self.request.user
         context['choices'] = Vote.VOTE_CHOICES
-        context['decision'] = Decision.objects.get(pk=kwargs['pk'])
+        decision = Decision.objects.get(pk=kwargs['pk'])
+        context['decision'] = decision
+        context['votes'] = decision.vote_set.filter(user=self.request.user).select_related('critVarLeft', 'critVarRight', 'parentCrit').order_by('order')
         return context
 
 class Index(generic.TemplateView):

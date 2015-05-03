@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from decision.models import Decision, Criteria_Variant, Vote, Invite, CustomUser
+from decision.models import Decision, Criteria_Variant, Vote, Invite, CustomUser,\
+    DecisionValue
 from mysite.forms import UserCreationForm
 
 
@@ -9,6 +10,7 @@ from mysite.forms import UserCreationForm
 admin.site.register(Invite)
 admin.site.register(Criteria_Variant)
 admin.site.register(Vote)
+admin.site.register(DecisionValue)
 
 class CriteriaInline(admin.TabularInline):
     model = Criteria_Variant

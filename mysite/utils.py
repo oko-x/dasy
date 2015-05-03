@@ -12,6 +12,17 @@ def nCr(n,r):
     f = math.factorial
     return f(n) / f(r) / f(n-r)
 
+def calculatePercentageFromVector(vector):
+    result = vector.split(';')
+    count = 0
+    for i, value in enumerate(result):
+        result[i] = float(value)
+        result[i] = round(result[i]*100,0)
+        count += result[i]
+    count -= 100
+    result[0] += count
+    return result
+
 def calcWeightVector(matrix):
     eigenvalues, eigenvector=np.linalg.eig(matrix)
     warnings.simplefilter("ignore", np.ComplexWarning)

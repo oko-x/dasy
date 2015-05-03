@@ -13,9 +13,9 @@ from django.db.models.fields.related import ForeignKey
 from django.utils.timezone import now
 
 from mysite.utils import calcCriteriaWeight, calcVariantsWeightRespectToCriteria, \
-    calcCriteriasWeightRespectToVariant, nCr
+    calcCriteriasWeightRespectToVariant, nCr, calculatePercentageFromVector
 import numpy as np
-
+from StringIO import StringIO
 
 # Create your models here.
 class CustomUser(AbstractUser):
@@ -88,32 +88,66 @@ class Decision(models.Model):
     stage_one_date = DateField(null=True, blank=True)
     stage_two_date = DateField(null=True, blank=True)
     lastVotesCount = IntegerField(null=True, blank=True)
+    lastMembersCount = IntegerField(null=True, blank=True)
     lastCompleteness = IntegerField(null=True, blank=True)
+    lastSupermatrix = CharField(max_length=10000, null=True, blank=True)
+    fullCompleteness = IntegerField(null=True, blank=True)
+    pairwiseCount = IntegerField(null=True, blank=True)
     lastResult = CharField(max_length=2000, null=True, blank=True)
     def get_absolute_url(self):
         return reverse('decision_detail', kwargs={'pk': self.pk})
-    def getCompleteness(self):
-        votes = self.vote_set.all()
-        if len(votes) == self.lastVotesCount and self.lastCompleteness is not None:
-            print "cached"
-            return self.lastCompleteness
+    def getDetailGraphData(self):
         criterias = self.criteria_variant_set.filter(crit_var=False).order_by('name')
         variants = self.criteria_variant_set.filter(crit_var=True).order_by('name')
-        criteriasLen = len(criterias)
-        variantsLen = len(variants)
-        if criteriasLen < 2 or variantsLen < 2:
-            return
+        supermatrixTxt = re.sub(r'[[\]]*','',self.lastSupermatrix)
+        supermatrix = np.loadtxt(StringIO(supermatrixTxt))
+        print supermatrix
+        critChart = []
+        for i, criteria in enumerate(criterias):
+            critChart.append([criteria.name,round(supermatrix[1+i][0]*100,1)])
+        return [critChart]
+    def getDecisionDetailData(self):
+        completeness = self.getCompleteness()
+        result = calculatePercentageFromVector(completeness[2])
+        percentualCompleteness = round((completeness[1]/float(completeness[0])*100),1)
+        currentCompleteness = completeness[1]
+        completenessRemainder = completeness[0] - completeness[1]
+        completenessHistory = self.decisionvalue_set.all().order_by('date')
+        return [completenessRemainder, currentCompleteness, result, completenessHistory, percentualCompleteness]
+    def getCompleteness(self):
+        votes = self.vote_set.all()
         votesLen = len(votes)
-        pairwiseCount = nCr(criteriasLen, 2)
-        pairwiseCount += criteriasLen * nCr(variantsLen, 2)
-        pairwiseCount += variantsLen * nCr(criteriasLen, 2)
         members = self.invite_set.filter(state="AC")
+        membersLen = len(members)
+        if votesLen == self.lastVotesCount and membersLen == self.lastMembersCount and self.lastCompleteness is not None and self.fullCompleteness is not None:
+            print self.name + " cached"
+            return [self.fullCompleteness, self.lastCompleteness, self.lastResult]
+        if self.pairwiseCount is None:
+            criterias = self.criteria_variant_set.filter(crit_var=False).order_by('name')
+            variants = self.criteria_variant_set.filter(crit_var=True).order_by('name')
+            criteriasLen = len(criterias)
+            variantsLen = len(variants)
+            if criteriasLen < 2 or variantsLen < 2:
+                return
+            pairwiseCount = nCr(criteriasLen, 2)
+            pairwiseCount += criteriasLen * nCr(variantsLen, 2)
+            pairwiseCount += variantsLen * nCr(criteriasLen, 2)
+            self.pairwiseCount = pairwiseCount
+        pairwiseCount = self.pairwiseCount
+        self.evaluate()
         self.lastCompleteness = votesLen
+        self.fullCompleteness = pairwiseCount * membersLen
+        self.lastMembersCount = membersLen
         self.save()
-        decisionValue = DecisionValue(decision=self, votes=votesLen, lastResult=self.lastResult)
+        decisionValue = DecisionValue.objects.filter(decision=self, date=now)
+        if not decisionValue:
+            decisionValue = DecisionValue(decision=self, votes=votesLen, lastResult=self.lastResult)
+        else:
+            decisionValue = decisionValue[0]
+            decisionValue.votes = votesLen
+            decisionValue.lastResult = self.lastResult
         decisionValue.save()
-        return [pairwiseCount * len(members), self.lastCompleteness]
-         
+        return [pairwiseCount * membersLen, self.lastCompleteness, self.lastResult]
     def getVotes(self):
         return self.vote_set.all().select_related('critVarLeft', 'critVarRight', 'parentCrit').order_by('order')
     def getPairwiseComparison(self):
@@ -130,9 +164,9 @@ class Decision(models.Model):
             array.append([variant, itertools.combinations(criterias, 2)])
         return array
     def getCriterias(self):
-        return self.criteria_variant_set.filter(crit_var=False)
+        return self.criteria_variant_set.filter(crit_var=False).order_by('name')
     def getVariants(self):
-        return self.criteria_variant_set.filter(crit_var=True)
+        return self.criteria_variant_set.filter(crit_var=True).order_by('name')
     def getInvited(self):
         return self.invite_set.all()
     def getMembers(self):
@@ -141,9 +175,6 @@ class Decision(models.Model):
         return CustomUser.objects.exclude(invite__decision=self)
     def evaluate(self):
         votes = self.vote_set.all().select_related('critVarLeft', 'critVarRight', 'user').order_by('id')
-        if len(votes) == self.lastVotesCount:
-            print "cached"
-            return
         criterias = self.criteria_variant_set.filter(crit_var=False).order_by('name')
         variants = self.criteria_variant_set.filter(crit_var=True).order_by('name')
         criteriasLength = len(criterias)
@@ -164,6 +195,7 @@ class Decision(models.Model):
         diff = True
         priorities = np.array([])
         old_priorities = None
+        self.lastSupermatrix = supermatrix
         while diff:
             supermatrix_pow = np.linalg.matrix_power(supermatrix, 2*i)
             for j in range(0, variantsLength):
@@ -191,6 +223,8 @@ class DecisionValue(models.Model):
     date = DateField(default=now)
     votes = IntegerField()
     lastResult = CharField(max_length=2000, null=True, blank=True)
+    def __unicode__(self):
+        return str(self.date) + "_" + str(self.votes) + "_" + str(self.lastResult)
     
 class Criteria_Variant(models.Model):
     decision = ForeignKey(Decision)
