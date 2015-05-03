@@ -98,14 +98,27 @@ class Decision(models.Model):
         return reverse('decision_detail', kwargs={'pk': self.pk})
     def getDetailGraphData(self):
         criterias = self.criteria_variant_set.filter(crit_var=False).order_by('name')
+        critLen = len(criterias)
         variants = self.criteria_variant_set.filter(crit_var=True).order_by('name')
+        varLen = len(variants)
         supermatrixTxt = re.sub(r'[[\]]*','',self.lastSupermatrix)
         supermatrix = np.loadtxt(StringIO(supermatrixTxt))
         print supermatrix
         critChart = []
+        variantWRTCritChart = []
+        criteriaWRTVariantChart = []
         for i, criteria in enumerate(criterias):
             critChart.append([criteria.name,round(supermatrix[1+i][0]*100,1)])
-        return [critChart]
+            variantDataArray = []
+            for j, variant in enumerate(variants):
+                variantDataArray.append([variant.name, round(supermatrix[1+critLen+j][1+i]*100,1)])
+            variantWRTCritChart.append([criteria, variantDataArray])
+        for i, variant in enumerate(variants):
+            criteriaDataArray = []
+            for j, criteria in enumerate(criterias):
+                criteriaDataArray.append([criteria.name, round(supermatrix[1+j][1+critLen+i]*100,1)])
+            criteriaWRTVariantChart.append([variant, criteriaDataArray])
+        return [critChart, variantWRTCritChart, criteriaWRTVariantChart]
     def getDecisionDetailData(self):
         completeness = self.getCompleteness()
         result = calculatePercentageFromVector(completeness[2])
