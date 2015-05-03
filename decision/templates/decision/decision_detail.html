@@ -13,7 +13,7 @@
 		<div class="columns small-12 medium-4">
 			<div class="picture" style="background:url('{{ MEDIA_URL }}{{ object.image }}');"></div>
 		</div>
-		<div class="columns small-12 medium-4">
+		<div class="columns small-12 medium-4 infoSection">
 			<div class="row">
 				<h3 class="columns subsectionHeader">Popis</h3>
 				<div class="columns small-12">
@@ -27,12 +27,23 @@
 						<span class="key">Vytvorené</span><span class="value">{{ decision.published }}</span>
 					</div>
 					<div class="pair">
-						<span class="key">Úplnosť</span><span class="value">{{ completeness.4 }}</span><span class="symbol"> %</span>
+						<span class="key">Úplnosť</span><span class="value">{{ completeness.3 }}</span><span class="symbol"> %</span>
 					</div>
 				</div>
 			</div>
+			<div class="row">
+				<h3 class="columns subsectionHeader">Výsledky hodnotenia</h3>
+				<div class="columns small-12">
+					{% for item in object.getVariants %}
+						<div class="pair">
+							<span class="key">{{ item.0.name }}</span><span class="value">{{ item.1 }}</span><span class="symbol"> %</span>
+						</div>
+					{% endfor %}
+				</div>
+			</div>
 		</div>
-		<div class="columns small-12 medium-4 resultChartWrapper" data-completeness="{{ completeness.4 }}">
+		<div class="columns small-12 medium-4 resultChartWrapper" data-completeness="{{ completeness.3 }}">
+			<h3 class="columns subsectionHeader">Úplnosť</h3>
 			<canvas id="resultChart"></canvas>
 		</div>
 	</div>
@@ -76,25 +87,21 @@
 	<div class="itemWrapper">
 		<i class="fa fa-plus" onclick="openContent(this);"></i>
 		<a href="{{item.get_absolute_url}}">
-			<h2>{{item.name}}</h2>
+			<h2>{{item.0.name}}</h2>
 
 		</a>
-		{% for variantValue in completeness.2 %}
-			{% if forloop.counter == forloop.parentloop.counter %}
-		       <span>{{variantValue}}</span>
-		    {% endif %}
-		{% endfor %}
+       <span>{{item.1}}</span>
 		<div class="collapsedContent">
 			<div class="row">
 				<div class="columns small-12 medium-4">
-					<div class="picture" style="background:url('{{ MEDIA_URL }}{{ item.image }}');"></div>
+					<div class="picture" style="background:url('{{ MEDIA_URL }}{{ item.0.image }}');"></div>
 				</div>
 				<div class="columns small-12 medium-4">
 					<h3 class="columns subsectionHeader">Popis</h3>
-					<p class="description">{{ item.description }}</p>
+					<p class="description">{{ item.0.description }}</p>
 				</div>
 				<div class="columns small-12 medium-4">
-					<canvas class="generalChart" id="var_{{item.id}}"></canvas>
+					<canvas class="generalChart" id="var_{{item.0.id}}"></canvas>
 				</div>
 			</div>
 		</div>
@@ -165,7 +172,7 @@
 	var remainder = {{ completeness.0 }};
 	var voteEvolutionData = {
 		labels: [
-			{% for eventDay in completeness.3 %}
+			{% for eventDay in completeness.2 %}
 				"{{ eventDay.date }}",
 			{% endfor %}
 		],
@@ -178,7 +185,7 @@
             pointHighlightFill: "#fff",
             pointHighlightStroke: "rgba(220,220,220,1)",
             data: [
-            	{% for eventDay in completeness.3 %}
+            	{% for eventDay in completeness.2 %}
 					"{{ eventDay.votes }}",
 				{% endfor %}
             ]

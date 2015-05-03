@@ -100,11 +100,11 @@ class Decision(models.Model):
         criterias = self.criteria_variant_set.filter(crit_var=False).order_by('name')
         critLen = len(criterias)
         variants = self.criteria_variant_set.filter(crit_var=True).order_by('name')
-        varLen = len(variants)
         supermatrixTxt = re.sub(r'[[\]]*','',self.lastSupermatrix)
         supermatrix = np.loadtxt(StringIO(supermatrixTxt))
         print supermatrix
         critChart = []
+        varChart = []
         variantWRTCritChart = []
         criteriaWRTVariantChart = []
         for i, criteria in enumerate(criterias):
@@ -118,15 +118,14 @@ class Decision(models.Model):
             for j, criteria in enumerate(criterias):
                 criteriaDataArray.append([criteria.name, round(supermatrix[1+j][1+critLen+i]*100,1)])
             criteriaWRTVariantChart.append([variant, criteriaDataArray])
-        return [critChart, variantWRTCritChart, criteriaWRTVariantChart]
+        return [critChart, variantWRTCritChart, criteriaWRTVariantChart, varChart]
     def getDecisionDetailData(self):
         completeness = self.getCompleteness()
-        result = calculatePercentageFromVector(completeness[2])
         percentualCompleteness = round((completeness[1]/float(completeness[0])*100),1)
         currentCompleteness = completeness[1]
         completenessRemainder = completeness[0] - completeness[1]
         completenessHistory = self.decisionvalue_set.all().order_by('date')
-        return [completenessRemainder, currentCompleteness, result, completenessHistory, percentualCompleteness]
+        return [completenessRemainder, currentCompleteness, completenessHistory, percentualCompleteness]
     def getCompleteness(self):
         votes = self.vote_set.all()
         votesLen = len(votes)
@@ -179,7 +178,12 @@ class Decision(models.Model):
     def getCriterias(self):
         return self.criteria_variant_set.filter(crit_var=False).order_by('name')
     def getVariants(self):
-        return self.criteria_variant_set.filter(crit_var=True).order_by('name')
+        variants = self.criteria_variant_set.filter(crit_var=True).order_by('name')
+        result = calculatePercentageFromVector(self.lastResult)
+        resultArray = []
+        for i, variant in enumerate(variants):
+            resultArray.append([variant, result[i]])
+        return resultArray
     def getInvited(self):
         return self.invite_set.all()
     def getMembers(self):
