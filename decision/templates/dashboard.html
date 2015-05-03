@@ -9,9 +9,24 @@
 			<i class="fa fa-plus" onclick="openContent(this);"></i>
 			<a href="{% url 'decision_detail' invite.decision.id %}">
 				<h2>{{ invite.decision.name }}</h2>
-				<span>{{ invite.decision.getCompleteness }}</span>
 			</a>
-			<div class="collapsedContent">collapsed</div>
+			<span class="key">úplnosť</span>
+			<span class="value">{{ invite.decision.getCompleteness.2 }}</span>
+			<span class="symbol"> %</span>
+			<div class="collapsedContent">
+				<div class="row">
+					<div class="columns small-12 medium-4">
+						<div class="picture" style="background:url('{{ MEDIA_URL }}{{ invite.decision.image }}');"></div>
+					</div>
+					<div class="columns small-12 medium-4">
+						<h3 class="subsectionHeader">Popis</h3>
+						<p class="description">{{ invite.decision.description }}</p>
+					</div>
+					<div class="columns small-12 medium-4">
+						<canvas class="generalChart" id="decision_{{invite.decision.id}}"></canvas>
+					</div>
+				</div>
+			</div>
 		</div>
 	{% endfor %}
 	{% for decision in user.getDecisionsCreated %}
@@ -19,9 +34,24 @@
 			<i class="fa fa-plus" onclick="openContent(this);"></i>
 			<a href="{% url 'decision_detail' decision.id %}">
 				<h2>{{ decision.name }}</h2>
-				<span>{{ decision.getCompleteness }}</span>
 			</a>
-			<div class="collapsedContent">collapsed</div>
+			<span class="key">úplnosť</span>
+			<span class="value">{{ decision.getCompleteness.2 }}</span>
+			<span class="symbol"> %</span>
+			<div class="collapsedContent">
+				<div class="row">
+					<div class="columns small-12 medium-4">
+						<div class="picture" style="background:url('{{ MEDIA_URL }}{{ decision.image }}');"></div>
+					</div>
+					<div class="columns small-12 medium-4">
+						<h3 class="subsectionHeader">Popis</h3>
+						<p class="description">{{ decision.description }}</p>
+					</div>
+					<div class="columns small-12 medium-4">
+						<canvas class="generalChart" id="decision_{{decision.id}}"></canvas>
+					</div>
+				</div>
+			</div>
 		</div>
 	{% endfor %}
 	</section>

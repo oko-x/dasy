@@ -133,7 +133,8 @@ class Decision(models.Model):
         membersLen = len(members)
         if votesLen == self.lastVotesCount and membersLen == self.lastMembersCount and self.lastCompleteness is not None and self.fullCompleteness is not None:
             print self.name + " cached"
-            return [self.fullCompleteness, self.lastCompleteness, self.lastResult]
+            percentualCompleteness = round((self.lastCompleteness/float(self.fullCompleteness)*100),1)
+            return [self.fullCompleteness, self.lastCompleteness, percentualCompleteness]
         if self.pairwiseCount is None:
             criterias = self.criteria_variant_set.filter(crit_var=False).order_by('name')
             variants = self.criteria_variant_set.filter(crit_var=True).order_by('name')
@@ -159,7 +160,8 @@ class Decision(models.Model):
             decisionValue.votes = votesLen
             decisionValue.lastResult = self.lastResult
         decisionValue.save()
-        return [pairwiseCount * membersLen, self.lastCompleteness, self.lastResult]
+        percentualCompleteness = round((self.lastCompleteness/float(self.fullCompleteness)*100),1)
+        return [self.fullCompleteness, self.lastCompleteness, percentualCompleteness]
     def getVotes(self):
         return self.vote_set.all().select_related('critVarLeft', 'critVarRight', 'parentCrit').order_by('order')
     def getPairwiseComparison(self):
