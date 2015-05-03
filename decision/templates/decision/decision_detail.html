@@ -186,12 +186,12 @@
 
 	};
 </script>
-{{object.getDetailGraphData.1}}
 {% endwith %}
 {% endwith %}
 {% endblock %}
 {% block javascript %}
 <script>
+{% with graphData=object.getDetailGraphData %}
 $(document).ready(function(){
 	var resultChartCanvas = document.getElementById("resultChart").getContext("2d");
 	var resultChartEvolutionCanvas = document.getElementById("resultEvolutionChart").getContext("2d");
