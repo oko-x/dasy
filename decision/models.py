@@ -53,7 +53,7 @@ class Invite(models.Model):
         (EXPERT, u'Expert'),
     )
     weight = IntegerField(choices=WEIGHT_CHOICES)
-    user = ForeignKey(CustomUser)
+    user = ForeignKey("CustomUser")
     decision = ForeignKey('Decision')
     state = CharField(max_length=2, choices=STATE_CHOICES, default="SE")
     def acceptInvite(self):
@@ -81,7 +81,7 @@ class Decision(models.Model):
     )
     name = CharField(max_length=200)
     description = CharField( max_length=2000, blank=True)
-    creator = ForeignKey(CustomUser)
+    creator = ForeignKey("CustomUser")
     image = ImageField(null=True, blank=True, upload_to="pics/decision", default = 'pics/no-img.png')
     state = CharField(max_length=2, choices=STATE_CHOICES, default="NE")
     published = DateField(default=now)
@@ -238,7 +238,7 @@ class Decision(models.Model):
         return self.get_state_display() + "_" + self.name
     
 class DecisionValue(models.Model):
-    decision = ForeignKey(Decision)
+    decision = ForeignKey("Decision")
     date = DateField(default=now)
     votes = IntegerField()
     lastResult = CharField(max_length=2000, null=True, blank=True)
@@ -246,7 +246,7 @@ class DecisionValue(models.Model):
         return str(self.date) + "_" + str(self.votes) + "_" + str(self.lastResult)
     
 class Criteria_Variant(models.Model):
-    decision = ForeignKey(Decision)
+    decision = ForeignKey("Decision")
     name = CharField(max_length=200)
     description = CharField(max_length=2000, blank=True)
     image = ImageField(null=True, blank=True, upload_to="pics/critvar", default = 'pics/no-img.png')
@@ -305,11 +305,11 @@ class Vote(models.Model):
     )
     order = IntegerField()
     userWeight = IntegerField(choices=WEIGHT_CHOICES)
-    user = ForeignKey(CustomUser)
-    decision = ForeignKey(Decision)
-    parentCrit = ForeignKey(Criteria_Variant, related_name='critVar_parent', default=None, null=True, blank=True)
-    critVarLeft = ForeignKey(Criteria_Variant, related_name='critVar_left', default=None)
-    critVarRight = ForeignKey(Criteria_Variant, related_name='critVar_right', default=None)
+    user = ForeignKey("CustomUser")
+    decision = ForeignKey("Decision")
+    parentCrit = ForeignKey("Criteria_Variant", related_name='critVar_parent', default=None, null=True, blank=True)
+    critVarLeft = ForeignKey("Criteria_Variant", related_name='critVar_left', default=None)
+    critVarRight = ForeignKey("Criteria_Variant", related_name='critVar_right', default=None)
     value = FloatField(choices=VOTE_CHOICES)
     def __unicode__(self):
         return (self.parentCrit.__unicode__() + "_" if self.parentCrit is not None else "") + self.critVarLeft.__unicode__() + "-" + self.critVarRight.__unicode__()
