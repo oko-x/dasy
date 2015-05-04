@@ -100,9 +100,10 @@ class Decision(models.Model):
         criterias = self.criteria_variant_set.filter(crit_var=False).order_by('name')
         critLen = len(criterias)
         variants = self.criteria_variant_set.filter(crit_var=True).order_by('name')
-        supermatrixTxt = re.sub(r'[[\]]*','',self.lastSupermatrix)
+        supermatrixTxt = str(self.lastSupermatrix)
+        supermatrixTxt = supermatrixTxt.replace("[", "")
+        supermatrixTxt = supermatrixTxt.replace("]", "")
         supermatrix = np.loadtxt(StringIO(supermatrixTxt))
-        print supermatrix
         critChart = []
         varChart = []
         variantWRTCritChart = []
