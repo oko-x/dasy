@@ -121,7 +121,7 @@ class Decision(models.Model):
         return [critChart, variantWRTCritChart, criteriaWRTVariantChart, varChart]
     def getDecisionDetailData(self):
         completeness = self.getCompleteness()
-        percentualCompleteness = round((completeness[1]/float(completeness[0])*100),1)
+        percentualCompleteness = completeness[2]
         currentCompleteness = completeness[1]
         completenessRemainder = completeness[0] - completeness[1]
         completenessHistory = self.decisionvalue_set.all().order_by('date')
@@ -131,7 +131,7 @@ class Decision(models.Model):
         votesLen = len(votes)
         members = self.invite_set.filter(state="AC")
         membersLen = len(members)
-        if votesLen == self.lastVotesCount and membersLen == self.lastMembersCount and self.lastCompleteness is not None and self.fullCompleteness is not None:
+        if votesLen == self.lastVotesCount and membersLen == self.lastMembersCount and self.lastCompleteness is not None and self.fullCompleteness is not None and self.fullCompleteness is not 0:
             print self.name + " cached"
             percentualCompleteness = round((self.lastCompleteness/float(self.fullCompleteness)*100),1)
             return [self.fullCompleteness, self.lastCompleteness, percentualCompleteness]
@@ -160,7 +160,10 @@ class Decision(models.Model):
             decisionValue.votes = votesLen
             decisionValue.lastResult = self.lastResult
         decisionValue.save()
-        percentualCompleteness = round((self.lastCompleteness/float(self.fullCompleteness)*100),1)
+        if membersLen is 0:
+            percentualCompleteness = 0
+        else:
+            percentualCompleteness = round((self.lastCompleteness/float(self.fullCompleteness)*100),1)
         return [self.fullCompleteness, self.lastCompleteness, percentualCompleteness]
     def getVotes(self):
         return self.vote_set.all().select_related('critVarLeft', 'critVarRight', 'parentCrit').order_by('order')
