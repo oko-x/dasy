@@ -151,7 +151,7 @@
 				<div class="innerContent">
 					<div class="row">
 						<div class="columns small-12 medium-8">
-							<select id="userWeight">
+							<select class="userWeight">
 								<option value="" disabled selected>Zvoľ odbornosť užívateľa</option>
 							{% for weight in weights %}
 
@@ -327,9 +327,12 @@ $(document).ready(function(){
 });
 function post(link, event, decision_id, user_id){
 	event.preventDefault();
+
+	var user_weight = $(link).parent().parent().find(".userWeight").val();
+
 	$.post(
 		"{% url 'invite_create' %}", 
-		{ decision_id: decision_id, user_id: user_id, user_weight: $("#userWeight").val(), csrfmiddlewaretoken: '{{ csrf_token }}' },
+		{ decision_id: decision_id, user_id: user_id, user_weight: user_weight, csrfmiddlewaretoken: '{{ csrf_token }}' },
 		function(data){
 			handleData(data);
 		}
