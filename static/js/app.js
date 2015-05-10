@@ -24,11 +24,11 @@ function handleData(data){
 	target.slideUp(0, function(){
 		$(this).slideDown(300);
 	});
-	// setTimeout(function(){
-	// 	target.slideUp(300, function(){
-	// 		$(this).remove();
-	// 	});
-	// }, 3000);
+	setTimeout(function(){
+		target.slideUp(300, function(){
+			$(this).remove();
+		});
+	}, 3000);
 }
 
 $(document).ready(function(){

@@ -19,6 +19,9 @@ def inviteCreate(request, decision_id=None, user_id=None):
         state = "AC"
     else:
         state = "SE"
+    i = Invite.objects.filter(decision__id=decision_id, user=user_id)
+    if len(i) > 0:
+        return HttpResponse("Invite already sent")
     i = Invite(user=CustomUser.objects.get(pk=user_id),
                weight=user_weight,
                decision=Decision.objects.get(pk=decision_id),
