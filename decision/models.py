@@ -132,9 +132,12 @@ class Decision(models.Model):
         votesLen = len(votes)
         members = self.invite_set.filter(state="AC")
         membersLen = len(members)
-        if votesLen == self.lastVotesCount and membersLen == self.lastMembersCount and self.lastCompleteness is not None and self.fullCompleteness is not None and self.fullCompleteness is not 0:
+        if votesLen == self.lastVotesCount and membersLen == self.lastMembersCount and self.lastCompleteness is not None and self.fullCompleteness is not None:
             print self.name + " cached"
-            percentualCompleteness = round((self.lastCompleteness/float(self.fullCompleteness)*100),1)
+            if self.fullCompleteness is 0:
+                percentualCompleteness = 0
+            else:
+                percentualCompleteness = round((self.lastCompleteness/float(self.fullCompleteness)*100),1)
             return [self.fullCompleteness, self.lastCompleteness, percentualCompleteness]
         if self.pairwiseCount is None:
             criterias = self.criteria_variant_set.filter(crit_var=False).order_by('name')
