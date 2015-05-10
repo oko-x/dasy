@@ -6,7 +6,7 @@ from django.utils.decorators import method_decorator
 from django.views import generic
 
 from decision.models import Decision, CustomUser, Invite, Vote, Criteria_Variant
-from mysite.forms import DecisionForm, CriteriaVariantFormSet
+from decision.forms import DecisionForm, CriteriaVariantFormSet, CustomUserForm
 
 
 @login_required
@@ -100,6 +100,11 @@ class DecisionDetailView(generic.DetailView):
         context['weights'] = Invite.WEIGHT_CHOICES
         context['wasInvited'] = self.object.invite_set.filter(user=self.request.user, state="AC")
         return context
+    
+class UserCreateView(generic.CreateView):
+    model = CustomUser
+    form_class = CustomUserForm
+    success_url = "/app"
     
 class DecisionCreateView(generic.CreateView):
     model = Decision

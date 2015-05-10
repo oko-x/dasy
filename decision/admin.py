@@ -3,8 +3,6 @@ from django.contrib.auth.admin import UserAdmin
 
 from decision.models import Decision, Criteria_Variant, Vote, Invite, CustomUser,\
     DecisionValue
-from mysite.forms import UserCreationForm
-
 
 # Register your models here.
 admin.site.register(Invite)

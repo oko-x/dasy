@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Registration{{ decision.name }}{% endblock %}
+{% block header %}Registration{{ decision.name }}{% endblock %}
+{% block buttons %}
+{% endblock %}
+{% block content %}
+<section>
+    <h2 class="widgetHeader">Please fill the form</h2>
+    <form method="post" action="" enctype="multipart/form-data">
+    	<div class="row">
+			<div class="columns medium-6 medium-offset-3">
+		    	{% csrf_token %}
+					<label class="{% if form.username.errors %}error{% endif %}">{{ form.username.label }} <small>{{ form.username.help_text  }}</small>{{ form.username }}</label>
+					{% if form.username.errors %}<small class="error">{{ form.username.errors }}</small>{% endif %}
+					<label class="{% if form.password1.errors %}error{% endif %}">{{ form.password1.label }} <small>{{ form.password1.help_text  }}</small>{{ form.password1 }}</label>
+					{% if form.password1.errors %}<small class="error">{{ form.password1.errors }}</small>{% endif %}
+					<label class="{% if form.password2.errors %}error{% endif %}">{{ form.password2.label }} <small>{{ form.password2.help_text  }}</small>{{ form.password2 }}</label>
+					{% if form.password2.errors %}<small class="error">{{ form.password2.errors }}</small>{% endif %}
+					<label class="{% if form.first_name.errors %}error{% endif %}">{{ form.first_name.label }} <small>{{ form.first_name.help_text  }}</small>{{ form.first_name }}</label>
+					{% if form.first_name.errors %}<small class="error">{{ form.first_name.errors }}</small>{% endif %}
+					<label class="{% if form.last_name.errors %}error{% endif %}">{{ form.last_name.label }} <small>{{ form.last_name.help_text  }}</small>{{ form.last_name }}</label>
+					{% if form.last_name.errors %}<small class="error">{{ form.last_name.errors }}</small>{% endif %}
+					<label class="{% if form.image.errors %}error{% endif %}">{{ form.image.label }} <small>{{ form.image.help_text  }}</small>{{ form.image }}</label>
+					{% if form.image.errors %}<small class="error">{{ form.image.errors }}</small>{% endif %}
+		    	<input class="button expand small" type="submit" value="Register" />
+    		</div>
+    	</div>
+    </form>
+</section>
+{% endblock %}

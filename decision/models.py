@@ -12,7 +12,7 @@ from django.db.models.fields.files import ImageField
 from django.db.models.fields.related import ForeignKey
 from django.utils.timezone import now
 
-from mysite.utils import calcCriteriaWeight, calcVariantsWeightRespectToCriteria, \
+from decision.utils import calcCriteriaWeight, calcVariantsWeightRespectToCriteria, \
     calcCriteriasWeightRespectToVariant, nCr, calculatePercentageFromVector
 import numpy as np
 from StringIO import StringIO

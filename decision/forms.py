@@ -8,20 +8,13 @@ from django.forms.models import inlineformset_factory
 from django.forms.widgets import Textarea
 
 from decision.models import CustomUser, Decision, Criteria_Variant
+from django.contrib.auth.forms import UserCreationForm
 
 
-class UserCreationForm(forms.ModelForm):
+class CustomUserForm(UserCreationForm):
     class Meta:
         model = CustomUser
-        fields = ('username',)
-
-    def save(self, commit=True):
-        # Save the provided password in hashed format
-        user = super(UserCreationForm, self).save(commit=False)
-        user.set_password(self.cleaned_data["password"])
-        if commit:
-            user.save()
-        return user
+        fields = ('first_name', 'last_name', 'username', 'email', 'image')
 
 class DecisionForm(forms.ModelForm):
     description = forms.CharField( widget=forms.Textarea(attrs={'rows':4,}) )

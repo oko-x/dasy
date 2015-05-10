@@ -19,5 +19,6 @@ urlpatterns = patterns('',
     url(r'^invite/remove/$', views.inviteRemove, name='invite_remove'),
     url(r'^vote/edit/$', views.voteEdit, name='vote_edit'),
     url(r'^vote/add/$', views.voteAdd, name='vote_add'),
+    url(r'^registration/$', views.UserCreateView.as_view(), name='user_add'),
     url('^', include('django.contrib.auth.urls'))
 )

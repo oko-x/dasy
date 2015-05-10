@@ -1,26 +1,37 @@
 {% extends "base.html" %}
-
+{% block title %}Login{{ decision.name }}{% endblock %}
+{% block header %}Login{{ decision.name }}{% endblock %}
 {% block content %}
 
-{% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
-{% endif %}
-
+<section>
+	
 <form method="post" action="{% url 'django.contrib.auth.views.login' %}">
 {% csrf_token %}
-<table>
-<tr>
-    <td>{{ form.username.label_tag }}</td>
-    <td>{{ form.username }}</td>
-</tr>
-<tr>
-    <td>{{ form.password.label_tag }}</td>
-    <td>{{ form.password }}</td>
-</tr>
-</table>
+<div class="row">
+	<div class="columns medium-6 medium-offset-3">
+		<h2 class="widgetHeader center">Login using your account or register</h2>
+		<div class="row">
+			<div class="columns medium-3">
+				<label class="right inline{% if form.errors %} error{% endif %}">{{ form.username.label }}</label>
+			</div>
+			<div class="columns medium-9">
+				{{ form.username }}
+			</div>
+		</div>
+		<div class="row">
+			<div class="columns medium-3">
+				<label class="right inline{% if form.errors %} error{% endif %}">{{ form.password.label }}</label>
+			</div>
+			<div class="columns medium-9 {% if form.errors %}error{% endif %}">
+				{{ form.password }}
+				{% if form.errors %}<small class="error">Your username and password didn't match. Please try again.</small>{% endif %}
+			</div>
+		</div>
+		<input class="button expand small" type="submit" value="login" />
+	</div>
+</div>
 
-<input type="submit" value="login" />
 <input type="hidden" name="next" value="{{ next }}" />
 </form>
-
+</section>
 {% endblock %}

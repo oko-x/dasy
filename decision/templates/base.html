@@ -18,10 +18,18 @@
 		</header>
 		<nav>
 			<ul class="side-nav">
-				{% url 'dashboard' as url %}
-				<li><a href="{{ url }}" {% if request.path == url %} class="active"{% endif %}><i class="fa fa-dashboard"></i>Dashboard</a></li>
-				{% url 'decision_create' as url %}
-				<li><a href="{{ url }}" {% if request.path == url %} class="active"{% endif %}><i class="fa fa-plus-circle"></i>Add decision</a></li>
+				{% if user.is_authenticated %}
+					{% url 'dashboard' as url %}
+					<li><a href="{{ url }}" {% if request.path == url %} class="active"{% endif %}><i class="fa fa-dashboard"></i>Dashboard</a></li>
+					{% url 'decision_create' as url %}
+					<li><a href="{{ url }}" {% if request.path == url %} class="active"{% endif %}><i class="fa fa-plus-circle"></i>Add decision</a></li>
+					<li><a href="{% url 'logout' %}"><i class="fa fa-power-off"></i>Logout</a></li>
+				{% else %}
+					{% url 'login' as url %}
+					<li><a href="{{ url }}" {% if request.path == url %} class="active"{% endif %}><i class="fa fa-unlock-alt"></i>Login</a></li>
+					{% url 'user_add' as url %}
+					<li><a href="{{ url }}" {% if request.path == url %} class="active"{% endif %}><i class="fa fa-plus"></i>Create user</a></li>
+				{% endif %}
 			</ul>
 		</nav>
 		<div class="contentWrapper">
