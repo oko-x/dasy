@@ -94,6 +94,7 @@ class Decision(models.Model):
     fullCompleteness = IntegerField(null=True, blank=True)
     pairwiseCount = IntegerField(null=True, blank=True)
     lastResult = CharField(max_length=2000, null=True, blank=True)
+    voteChange = BooleanField(default=False)
     def get_absolute_url(self):
         return reverse('decision_detail', kwargs={'pk': self.pk})
     def getDetailGraphData(self):
@@ -103,6 +104,7 @@ class Decision(models.Model):
         supermatrixTxt = str(self.lastSupermatrix)
         supermatrixTxt = supermatrixTxt.replace("[", "")
         supermatrixTxt = supermatrixTxt.replace("]", "")
+        self.evaluate()
         supermatrix = np.loadtxt(StringIO(supermatrixTxt))
         critChart = []
         varChart = []
@@ -132,7 +134,7 @@ class Decision(models.Model):
         votesLen = len(votes)
         members = self.invite_set.filter(state="AC")
         membersLen = len(members)
-        if votesLen == self.lastVotesCount and membersLen == self.lastMembersCount and self.lastCompleteness is not None and self.fullCompleteness is not None:
+        if self.voteChange is False and votesLen == self.lastVotesCount and membersLen == self.lastMembersCount and self.lastCompleteness is not None and self.fullCompleteness is not None:
             print self.name + " cached"
             if self.fullCompleteness is 0:
                 percentualCompleteness = 0
@@ -155,6 +157,7 @@ class Decision(models.Model):
         self.lastCompleteness = votesLen
         self.fullCompleteness = pairwiseCount * membersLen
         self.lastMembersCount = membersLen
+        self.voteChange = False
         self.save()
         decisionValue = DecisionValue.objects.filter(decision=self, date=now)
         if not decisionValue:

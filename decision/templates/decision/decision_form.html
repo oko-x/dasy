@@ -12,7 +12,9 @@
 {% csrf_token %}
 {{ form.management_form }}
 <section>
+    <h2 class="widgetHeader">Decision details</h2>
     <div class="row">
+        <div class="columns">
         <div class="small-12 medium-4">
             <div class="name-field">
                 <label {% if form.name.errors %}class="error"{% endif %}>{{ form.name.label }} <small>required</small>
@@ -36,6 +38,7 @@
                 </label>
                 {% if form.image.errors %}<span class="error">{{ form.image.errors }}</span>{% endif %}
             </div>    
+        </div>
         </div>
     </div>
 </section>
@@ -110,7 +113,7 @@
         });
         $('.variants.inline').formset({
             prefix: '{{ var_form.prefix }}',
-            formCssClass: 'dynamic-carFormset'
+            formCssClass: 'dynamic-varFormset'
         });
     })
 </script>

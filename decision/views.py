@@ -48,6 +48,9 @@ def voteEdit(request):
     vote = Vote.objects.get(pk=voteId)
     vote.value = value
     vote.save()
+    decision = vote.decision
+    decision.voteChange = True
+    decision.save()
     return HttpResponse("Vote updated")
 
 @login_required
@@ -190,6 +193,10 @@ class UserDetailView(generic.DetailView):
  
 class DecisionEvaluateView(generic.TemplateView):
     template_name = "decision_eval.html"
+    
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(DecisionEvaluateView, self).dispatch(*args, **kwargs)
     
     def get_context_data(self, **kwargs):
         context = super(DecisionEvaluateView, self).get_context_data(**kwargs)

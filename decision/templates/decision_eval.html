@@ -12,17 +12,37 @@
 		{% with isCriteria=vote.parentCrit.crit_var %}
 		{% with hasParent=vote.parentCrit %}
 		{% if hasParent %}
-			<h2 class="widgetHeader">{% if isCriteria %}Ktoré kritérium{% else %}Ktorý variant{% endif %} {% if isCriteria %}je pri variante {{ vote.parentCrit }} lepšie{% else %}je vzhľadom na kritérium {{ vote.parentCrit }} lepší{% endif %}?</h2>
+			<h2 class="widgetHeader">{% if isCriteria %}Ktoré kritérium{% else %}Ktorý variant{% endif %} {% if isCriteria %}je pri variante {{ vote.parentCrit.name }} lepšie{% else %}je vzhľadom na kritérium {{ vote.parentCrit.name }} lepší{% endif %}?</h2>
 		{% else %}
 			<h2 class="widgetHeader">Ktoré kritérium je vzhľadom na celkový cieľ dôležitejšie?</h2>
 		{% endif %}
-			<h4 class="evalHeader">{{ vote.critVarLeft.name }}<small> alebo </small>{{ vote.critVarRight.name }}</h4>
+			<div class="row evalRow">
+				<div class="columns medium-5">
+					<h4 class="evalHeader">{{ vote.critVarLeft.name }}</h4>
+					<div class="picture" style="background:url('{{ MEDIA_URL }}{{ vote.critVarLeft.image }}');"></div>
+					<div class="description">
+						{{ vote.critVarLeft.description }}
+					</div>
+				</div>
+				<div class="columns medium-2">
+					<h4 class="evalHeader"><small> alebo </small></h4>
+				</div>
+				<div class="columns medium-5">
+					<h4 class="evalHeader">{{ vote.critVarRight.name }}</h4>
+					<div class="picture" style="background:url('{{ MEDIA_URL }}{{ vote.critVarRight.image }}');"></div>
+					<div class="description">
+						{{ vote.critVarRight.description }}
+					</div>
+				</div>
+			</div>
 			<form class="editForm" data-vote-id="{{vote.pk}}">
 				{% for choice in choices %}
+				{% if forloop.counter0|divisibleby:2 %}
 					<input type="radio" id="vote_{{vote.pk}}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" name="{{vote.pk}}" value="{{ choice.0 }}" {% if vote.value == choice.0 %}checked{%endif%}>
 					<label for="vote_{{vote.pk}}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}">
-						{% if forloop.counter0|divisibleby:2 %}{{ choice.1 }}{% if not forloop.counter == 9 %}{% if not hasParent %}é{% else %}{% if isCriteria %}é{% else %}ý{% endif %}{% endif %}{% endif %}{% endif %}
+						{{ choice.1 }}{% if not forloop.counter == 9 %}{% if not hasParent %}é{% else %}{% if isCriteria %}é{% else %}ý{% endif %}{% endif %}{% endif %}
 					</label>
+				{% endif %}
 				{% endfor %}
 				<input type="submit" value="">
 			</form>
@@ -36,18 +56,38 @@
 		{% with hasParent=wrapper.0 %}
 		{% if hasParent %}
 			<li class="voteItem toVote {{ wrapper.0 }}_{{criteria.0}}-{{criteria.1}}">
-			<h2 class="widgetHeader">{% if isCriteria %}Ktoré kritérium{% else %}Ktorý variant{% endif %} {% if isCriteria %}je pri variante {{ wrapper.0 }} lepšie{% else %}je vzhľadom na kritérium {{ wrapper.0 }} lepší{% endif %}?</h2>
+			<h2 class="widgetHeader">{% if isCriteria %}Ktoré kritérium{% else %}Ktorý variant{% endif %} {% if isCriteria %}je pri variante {{ wrapper.0.name }} lepšie{% else %}je vzhľadom na kritérium {{ wrapper.0.name }} lepší{% endif %}?</h2>
 		{% else %}
 			<li class="voteItem toVote {{criteria.0}}-{{criteria.1}}">
 			<h2 class="widgetHeader">Ktoré kritérium je vzhľadom na celkový cieľ dôležitejšie?</h2>
 		{% endif %}
-			<h4 class="evalHeader">{{ criteria.0 }}<small> alebo </small>{{ criteria.1 }}</h4>
+			<div class="row evalRow">
+				<div class="columns medium-5">
+					<h4 class="evalHeader">{{ criteria.0.name }}</h4>
+					<div class="picture" style="background:url('{{ MEDIA_URL }}{{ criteria.0.image }}');"></div>
+					<div class="description">
+						{{ criteria.0.description }}
+					</div>
+				</div>
+				<div class="columns medium-2">
+					<h4 class="evalHeader"><small> alebo </small></h4>
+				</div>
+				<div class="columns medium-5">
+					<h4 class="evalHeader">{{ criteria.1.name }}</h4>
+					<div class="picture" style="background:url('{{ MEDIA_URL }}{{ criteria.1.image }}');"></div>
+					<div class="description">
+						{{ criteria.1.description }}
+					</div>
+				</div>
+			</div>
 			<form class="createForm" data-order data-decision-id="{{decision.pk}}" data-criteria-parent-id="{{wrapper.0.pk}}" data-criteria-left-id="{{ criteria.0.pk }}" data-criteria-right-id="{{ criteria.1.pk }}">
 			{% for choice in choices %}
+			{% if forloop.counter0|divisibleby:2 %}
 				<input type="radio" id="toVote_{{ criteria.0 }}-{{ criteria.1 }}_{{ forloop.parentloop.parentloop.counter }}_{{ forloop.counter }}" name="{{ criteria.0 }}-{{ criteria.1 }}" value="{{ choice.0 }}" >
 				<label for="toVote_{{ criteria.0 }}-{{ criteria.1 }}_{{ forloop.parentloop.parentloop.counter }}_{{ forloop.counter }}">
-					{% if forloop.counter0|divisibleby:2 %}{{ choice.1 }}{% if not forloop.counter == 9 %}{% if not hasParent %}é{% else %}{% if isCriteria %}é{% else %}ý{% endif %}{% endif %}{% endif %}{% endif %}
+					{{ choice.1 }}{% if not forloop.counter == 9 %}{% if not hasParent %}é{% else %}{% if isCriteria %}é{% else %}ý{% endif %}{% endif %}{% endif %}
 				</label>
+			{% endif %}
 			{% endfor %}
 			<input type="submit" value="">
 			</form>
@@ -62,6 +102,7 @@
 {% block javascript %}
 <script>
 	$(document).ready(function(){
+		$(".contentWrapper").css("overflow", "hidden");
 		$(".editForm").submit(function(e){
 			e.preventDefault();
 			$('.voteSlider').flexslider('next');
@@ -106,6 +147,8 @@
 		$(".vote").each(function(i, val){
 			$("."+$(this).data("vote-id")).remove();
 		});
+	});
+	$(window).load(function(){	
 		$('.voteSlider').flexslider({
 			animation: "slide",
 			// controlNav: false,
@@ -114,6 +157,9 @@
 			// smoothHeight: true,
 			directionNav: false,
 			after: function(slider){
+				setTimeout(function(){
+					$(".contentWrapper").css("overflow", "auto");
+				}, 100);
 	        },
 	        start: function(slider){
 	        }

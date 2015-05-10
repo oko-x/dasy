@@ -1,6 +1,6 @@
 {% extends "base.html" %}
-{% block title %}Detail rozhodovania{% endblock %}
-{% block header %}Detail rozhodovania{% endblock %}
+{% block title %}Decision detail{% endblock %}
+{% block header %}Decision detail{% endblock %}
 {% block buttons %}
 <a class="button" title="Späť na dashboard" href="{% url 'dashboard' %}"><i class="fa fa-times"></i></a>
 {% if wasInvited %}<a class="button" title="Párové porovnania" href="{% url 'decision_evaluate' object.id %}"><i class="fa fa-sliders"></i></a>{% endif %}
@@ -15,7 +15,7 @@
 		</div>
 		<div class="columns small-12 medium-4 infoSection">
 			<div class="row">
-				<h3 class="columns subsectionHeader">Popis</h3>
+				<h3 class="columns subsectionHeader">Description</h3>
 				<div class="columns small-12">
 					<p class="description">{{ object.description }}</p>
 				</div>	
@@ -24,15 +24,15 @@
 				<h3 class="columns subsectionHeader">Info</h3>
 				<div class="columns small-12">
 					<div class="pair">
-						<span class="key">Vytvorené</span><span class="value">{{ decision.published }}</span>
+						<span class="key">Created</span><span class="value">{{ decision.published }}</span>
 					</div>
 					<div class="pair">
-						<span class="key">Úplnosť</span><span class="value">{{ completeness.3 }}</span><span class="symbol"> %</span>
+						<span class="key">Completeness</span><span class="value">{{ completeness.3 }}</span><span class="symbol"> %</span>
 					</div>
 				</div>
 			</div>
 			<div class="row">
-				<h3 class="columns subsectionHeader">Výsledky hodnotenia</h3>
+				<h3 class="columns subsectionHeader">Results</h3>
 				<div class="columns small-12">
 					{% for item in object.getVariants %}
 						<div class="pair">
@@ -42,22 +42,26 @@
 				</div>
 			</div>
 		</div>
-		<div class="columns small-12 medium-4 resultChartWrapper" data-completeness="{{ completeness.3 }}">
-			<h3 class="columns subsectionHeader">Úplnosť</h3>
-			<canvas id="resultChart"></canvas>
+		<div class="columns small-12 medium-4 completenessChartWrapper" data-completeness="{{ completeness.3 }}">
+			<canvas id="completenessChart"></canvas>
+			{% if completeness.3 == 100 %}
+			<h3 class="columns chartHeader">Result</h3>
+			{% else %}
+			<h3 class="columns chartHeader">Completeness</h3>
+			{% endif %}
 		</div>
 	</div>
 </section>
 <section>
-	<h2 class="widgetHeader">Vývoj počtu hlasov</h2>
-	<canvas id="resultEvolutionChart"></canvas>
+	<h2 class="widgetHeader">Voting progress chart</h2>
+	<canvas id="completenessEvolutionChart"></canvas>
 </section>
 <section>
-	<h2 class="widgetHeader">Vyhodnotenie dôležitosti kritérií</h2>
+	<h2 class="widgetHeader">Criteria importance chart</h2>
 	<canvas id="criteriaChart"></canvas>
 </section>
 <section>
-	<h2 class="widgetHeader">Kritériá</h2>
+	<h2 class="widgetHeader">Criterias</h2>
 	{% for item in object.getCriterias %}
 	<div class="itemWrapper">
 		<i class="fa fa-plus" onclick="openContent(this);"></i>
@@ -70,7 +74,7 @@
 					<div class="picture" style="background:url('{{ MEDIA_URL }}{{ item.image }}');"></div>
 				</div>
 				<div class="columns small-12 medium-4">
-					<h3 class="subsectionHeader">Popis</h3>
+					<h3 class="subsectionHeader">Description</h3>
 					<p class="description">{{ item.description }}</p>
 				</div>
 				<div class="columns small-12 medium-4">
@@ -82,14 +86,14 @@
 	{% endfor %}
 </section>
 <section>
-	<h2 class="widgetHeader">Varianty</h2>
+	<h2 class="widgetHeader">Variants</h2>
 		{% for item in object.getVariants %}
 	<div class="itemWrapper">
 		<i class="fa fa-plus" onclick="openContent(this);"></i>
 		<a href="{{item.get_absolute_url}}">
 			<h2>{{item.0.name}}</h2>
 		</a>
-		<span class="key">hodnotenie</span>
+		<span class="key">value</span>
 		<span class="value">{{ item.1 }}</span>
 		<span class="symbol"> %</span>
        <span>{{item.1}}</span>
@@ -99,7 +103,7 @@
 					<div class="picture" style="background:url('{{ MEDIA_URL }}{{ item.0.image }}');"></div>
 				</div>
 				<div class="columns small-12 medium-4">
-					<h3 class="subsectionHeader">Popis</h3>
+					<h3 class="subsectionHeader">Description</h3>
 					<p class="description">{{ item.0.description }}</p>
 				</div>
 				<div class="columns small-12 medium-4">
@@ -113,12 +117,16 @@
 {% with invited=object.getInvited %}
 {% if invited %}
 <section>
-	<h2 class="widgetHeader">Pozvaní užívatelia</h2>
+	<h2 class="widgetHeader">Invited users</h2>
 	{% for item in invited %}
 		<div class="itemWrapper">
 			<i class="fa fa-plus" onclick="openContent(this);"></i>
 			<div class="avatar small" style="background:url('{{ MEDIA_URL }}{{ item.image }}');"></div>
 			<h2>{{ item.user.username }}</h2>
+			<span class="key">name</span>
+			<span class="value">{{ item.user.name }}</span>
+			<span class="key">surname</span>
+			<span class="value">{{ item.user.surname }}</span>
 			<div class="collapsedContent">
 				<div class="avatar" style="background:url('{{ MEDIA_URL }}{{ item.image }}');"></div>
 				<div class="innerContent">
@@ -140,19 +148,27 @@
 {% with uninvited=object.getUninvited %}
 {% if uninvited %}
 <section>
-	<h2 class="widgetHeader">Nepozvaní užívatelia</h2>
+	<h2 class="widgetHeader">Uninvited users</h2>
 	{% for item in uninvited %}
 		<div class="itemWrapper">
 			<i class="fa fa-plus" onclick="openContent(this);"></i>
 			<div class="avatar small" style="background:url('{{ MEDIA_URL }}{{ item.image }}');"></div>
 			<h2>{{ item.username }}</h2>
+			<div class="pair--header">
+				<span class="key">name</span>
+				<span class="value">{{ item.first_name }} {{ item.last_name }}</span>
+			</div>
+			<div class="pair--header">
+				<span class="key">email</span>
+				<span class="value">{{ item.email }}</span>
+			</div>
 			<div class="collapsedContent">
 				<div class="avatar" style="background:url('{{ MEDIA_URL }}{{ item.image }}');"></div>
 				<div class="innerContent">
 					<div class="row">
 						<div class="columns small-12 medium-8">
 							<select class="userWeight">
-								<option value="" disabled selected>Zvoľ odbornosť užívateľa</option>
+								<option value="" disabled selected>Select user skill level</option>
 							{% for weight in weights %}
 
 								<option value="{{weight.0}}">{{weight.1}}</option>
@@ -160,7 +176,7 @@
 							</select>	
 						</div>
 						<div class="columns small-12 medium-offset-2 medium-2">
-							<a class="button radius tiny" href="{% url 'invite_create' object.id item.id %}" onclick="post(this, event, {{ object.id }}, {{ item.id }})">Pozvať</a>
+							<a class="button radius tiny" href="{% url 'invite_create' object.id item.id %}" onclick="post(this, event, {{ object.id }}, {{ item.id }})">Invite</a>
 						</div>
 					</div>					
 				</div>
@@ -172,7 +188,13 @@
 <script>
 	var completeness = {{ completeness.1 }};
 	var remainder = {{ completeness.0 }};
-	var voteEvolutionData = {
+	var complete;
+	if({{ completeness.3 }} == 100){
+		complete = true;
+	}else{
+		complete = false;
+	}
+	var completenessEvolutionData = {
 		labels: [
 			{% for eventDay in completeness.2 %}
 				"{{ eventDay.date }}",
@@ -192,7 +214,6 @@
 				{% endfor %}
             ]
 		},]
-
 	};
 </script>
 {% endwith %}
@@ -202,8 +223,8 @@
 <script>
 {% with graphData=object.getDetailGraphData %}
 $(document).ready(function(){
-	var resultChartCanvas = document.getElementById("resultChart").getContext("2d");
-	var resultChartEvolutionCanvas = document.getElementById("resultEvolutionChart").getContext("2d");
+	var completenessChartCanvas = document.getElementById("completenessChart").getContext("2d");
+	var completenessEvolutionCanvas = document.getElementById("completenessEvolutionChart").getContext("2d");
 	var criteriaChartCanvas = document.getElementById("criteriaChart").getContext("2d");
 	var options = {
 	    //Boolean - Whether we should show a stroke on each segment
@@ -216,7 +237,7 @@ $(document).ready(function(){
 	    segmentStrokeWidth : 2,
 
 	    //Number - The percentage of the chart that we cut out of the middle
-	    percentageInnerCutout : 70, // This is 0 for Pie charts
+	    percentageInnerCutout : 80, // This is 0 for Pie charts
 
 	    //Number - Amount of animation steps
 	    animationSteps : 50,
@@ -230,7 +251,19 @@ $(document).ready(function(){
 	    //Boolean - Whether we animate scaling the Doughnut from the centre
 	    animateScale : false,
 	}
+	var colors = ["3eb4c6", "37D391", "376CD3", "3A9DDD", "3ADDC6"];
+	var highlight = ["58CEE0", "51EDAB", "5186ED", "54B7F7", "54F7E0"];
 	var resultData = [
+	{% for item in object.getVariants %}
+		{
+		    value: {{ item.1 }},
+		    color: "#"+colors[{{ forloop.counter0 }} % 5],
+		    highlight: "#"+highlight[{{ forloop.counter0 }} % 5],
+		    label: "{{ item.0.name }}"
+		},
+	{% endfor %}
+	]
+	var completenessData = [
 	    {
 	        value: completeness,
 	        color:"#3eb4c6",
@@ -267,8 +300,14 @@ $(document).ready(function(){
 	        },
 	    ]
 	};
-	var resultChart = new Chart(resultChartCanvas).Doughnut(resultData,options);
-	var resultChartEvolution = new Chart(resultChartEvolutionCanvas).Line(voteEvolutionData, options);
+	var completenessChart;
+	if(complete){
+		completenessChart = new Chart(completenessChartCanvas).Doughnut(resultData,options);
+	}
+	else{
+		completenessChart = new Chart(completenessChartCanvas).Doughnut(completenessData,options);
+	}
+	var completenessChartEvolution = new Chart(completenessEvolutionCanvas).Line(completenessEvolutionData, options);
 	var criteriaChart = new Chart(criteriaChartCanvas).Radar(criteriaData, options);
 	{% for critInnerGraphData in graphData.1 %}
 		var crit_{{critInnerGraphData.0.id}}_Canvas = document.getElementById("crit_{{critInnerGraphData.0.id}}").getContext("2d");
