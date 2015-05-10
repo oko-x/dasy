@@ -37,4 +37,6 @@ $(document).ready(function(){
 		$(this).css("height", $(this).height());
 		$(this).addClass("collapsed");
 	});
+	console.log($(".itemWrapper:first-of-type"));
+	$(".itemWrapper:first-of-type .fa-plus").click();
 });
