@@ -26,7 +26,7 @@
 					<div class="pair">
 						<span class="key">Created</span><span class="value">{{ decision.published }}</span>
 					</div>
-					<div class="pair">
+					<div class="pair" id="firstStop">
 						<span class="key">Completeness</span><span class="value">{{ completeness.3 }}</span><span class="symbol"> %</span>
 					</div>
 				</div>
@@ -147,7 +147,7 @@
 {% endwith %}
 {% with uninvited=object.getUninvited %}
 {% if uninvited %}
-<section>
+<section id="uninvited">
 	<h2 class="widgetHeader">Uninvited users</h2>
 	{% for item in uninvited %}
 		<div class="itemWrapper">
@@ -184,6 +184,16 @@
 		</div>
 	{% endfor %}
 </section>
+{% endif %}
+{% if completeness.0 == 0 %}
+<ol class="joyride-list" data-joyride>
+  <li data-id="firstStop" data-text="Show invitations" data-options="tip_location: top; prev_button: false">
+    <p>Your decision has no invited users yet.<br />Invite users to evaluate your decision process. You also need to invite yourself if you want to participate in the process also.</p>
+  </li>
+  <li data-id="uninvited" data-button="Exit" data-options="tip_location: top; prev_button: false" data-prev-text="Prev">
+    <p>Here you can invite users to participate on the decision process by selecting their expertise in the field of the decision process and clicking the invite button.</p>
+  </li>
+</ol>
 {% endif %}
 <script>
 	var completeness = {{ completeness.1 }};
@@ -364,6 +374,9 @@ $(document).ready(function(){
 		var var_{{critInnerGraphData.0.id}}_Chart = new Chart(var_{{critInnerGraphData.0.id}}_Canvas).Radar(var_{{critInnerGraphData.0.id}}_Data, options);
 	{% endfor %}
 });
+
+$(document).foundation('joyride', 'start');
+
 function post(link, event, decision_id, user_id){
 	event.preventDefault();
 

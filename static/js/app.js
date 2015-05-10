@@ -14,7 +14,7 @@ function openContent(elem){
 }
 
 function handleData(data){
-	var target = $("<div class='alert-box success decisionEval'>"+data+"</div>");
+	var target = $("<div class='alert-box success custom'>"+data+"</div>");
 	var button = $("<a href='#' class='close'>&times;</a>").click(function(){
 		$(this).parent().slideUp(300, function(){
 			$(this).remove();
@@ -24,11 +24,11 @@ function handleData(data){
 	target.slideUp(0, function(){
 		$(this).slideDown(300);
 	});
-	setTimeout(function(){
-		target.slideUp(300, function(){
-			$(this).remove();
-		});
-	}, 3000);
+	// setTimeout(function(){
+	// 	target.slideUp(300, function(){
+	// 		$(this).remove();
+	// 	});
+	// }, 3000);
 }
 
 $(document).ready(function(){
