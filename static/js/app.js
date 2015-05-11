@@ -29,14 +29,21 @@ function handleData(data){
 			$(this).remove();
 		});
 	}, 3000);
+	// $.get( window.location.href + "simple", function( data ) {
+	// 	var data = $(data)
+	//   console.log(data);
+	// });
 }
 
-$(document).ready(function(){
+function initCollapsed(){
 	$(".collapsedContent").each(function(){
 		$(this).css("height", "auto");
 		$(this).css("height", $(this).height());
 		$(this).addClass("collapsed");
 	});
-	console.log($(".itemWrapper:first-of-type"));
 	$(".itemWrapper:first-of-type .fa-plus").click();
+}
+
+$(document).ready(function(){
+	initCollapsed();
 });

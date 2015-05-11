@@ -4,12 +4,12 @@
 {% block content %}
 
 <section>
+<h2 class="widgetHeader center">Login using your account or <a href="{% url 'user_add' %}">register</a></h2>
 	
-<form method="post" action="{% url 'django.contrib.auth.views.login' %}">
+<form method="post" class="loginForm" action="{% url 'django.contrib.auth.views.login' %}">
 {% csrf_token %}
 <div class="row">
 	<div class="columns medium-6 medium-offset-3">
-		<h2 class="widgetHeader center">Login using your account or register</h2>
 		<div class="row">
 			<div class="columns medium-3">
 				<label class="right inline{% if form.errors %} error{% endif %}">{{ form.username.label }}</label>
@@ -27,7 +27,7 @@
 				{% if form.errors %}<small class="error">Your username and password didn't match. Please try again.</small>{% endif %}
 			</div>
 		</div>
-		<input class="button expand small" type="submit" value="login" />
+		<input class="button expand small" type="submit" value="Login" />
 	</div>
 </div>
 

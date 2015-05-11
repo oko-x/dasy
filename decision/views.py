@@ -103,6 +103,14 @@ class DecisionDetailView(generic.DetailView):
         context['weights'] = Invite.WEIGHT_CHOICES
         context['wasInvited'] = self.object.invite_set.filter(user=self.request.user, state="AC")
         return context
+
+class DecisionSimpleDetailView(generic.DetailView):
+    model = Decision
+    template_name = "simple_decision.html"
+    
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(DecisionSimpleDetailView, self).dispatch(*args, **kwargs)
     
 class UserCreateView(generic.CreateView):
     model = CustomUser

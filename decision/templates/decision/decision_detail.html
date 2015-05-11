@@ -116,24 +116,35 @@
 </section>	
 {% with invited=object.getInvited %}
 {% if invited %}
-<section>
+<section id="invited">
 	<h2 class="widgetHeader">Invited users</h2>
 	{% for item in invited %}
 		<div class="itemWrapper">
 			<i class="fa fa-plus" onclick="openContent(this);"></i>
 			<div class="avatar small" style="background:url('{{ MEDIA_URL }}{{ item.image }}');"></div>
 			<h2>{{ item.user.username }}</h2>
-			<span class="key">name</span>
-			<span class="value">{{ item.user.name }}</span>
-			<span class="key">surname</span>
-			<span class="value">{{ item.user.surname }}</span>
+			<div class="pair--header">
+				<span class="key">skill</span>
+				<span class="value">{{ item.get_weight_display  }}</span>
+			</div>
+			<div class="pair--header">
+				<span class="key">state</span>
+				<span class="value">{{ item.get_state_display  }}</span>
+			</div>
 			<div class="collapsedContent">
 				<div class="avatar" style="background:url('{{ MEDIA_URL }}{{ item.image }}');"></div>
 				<div class="innerContent">
 					<div class="row">
 						<div class="columns small-12 medium-8">
-							{{ item.get_weight_display  }}
-							{{ item.get_state_display  }}
+							<h3 class="subsectionHeader">Info</h3>
+							<div class="pair">
+								<span class="key">name</span>
+								<span class="value">{{ item.first_name }} {{ item.last_name }}</span>
+							</div>
+							<div class="pair">
+								<span class="key">email</span>
+								<span class="value">{{ item.email }}</span>
+							</div>
 						</div>
 						<div class="columns small-12 medium-offset-2 medium-2">
 						</div>
@@ -185,7 +196,7 @@
 	{% endfor %}
 </section>
 {% endif %}
-{% if completeness.0 == 0 %}
+{% if completeness.0 == 0 and completeness.1 == 0%}
 <ol class="joyride-list" data-joyride>
   <li data-id="firstStop" data-text="Show invitations" data-options="tip_location: top; prev_button: false">
     <p>Your decision has no invited users yet.<br />Invite users to evaluate your decision process. You also need to invite yourself if you want to participate in the process also.</p>
