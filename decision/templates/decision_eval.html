@@ -36,15 +36,20 @@
 				</div>
 			</div>
 			<form class="editForm" data-vote-id="{{vote.pk}}">
+				<div class="row">
+					<div class="show-for-large-up columns spacer"></div>
 				{% for choice in choices %}
 				{% if forloop.counter0|divisibleby:2 %}
+					<div class="columns small-12 medium-4 large-1">
 					<input type="radio" id="vote_{{vote.pk}}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" name="{{vote.pk}}" value="{{ choice.0 }}" {% if vote.value == choice.0 %}checked{%endif%}>
 					<label for="vote_{{vote.pk}}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}">
 						{{ choice.1 }}{% if not forloop.counter == 9 %}{% if not hasParent %}é{% else %}{% if isCriteria %}é{% else %}ý{% endif %}{% endif %}{% endif %}
 					</label>
+					</div>
 				{% endif %}
 				{% endfor %}
 				<input type="submit" value="">
+				</div>
 			</form>
 		</li>
 		{% endwith %}
@@ -81,15 +86,21 @@
 				</div>
 			</div>
 			<form class="createForm" data-order data-decision-id="{{decision.pk}}" data-criteria-parent-id="{{wrapper.0.pk}}" data-criteria-left-id="{{ criteria.0.pk }}" data-criteria-right-id="{{ criteria.1.pk }}">
-			{% for choice in choices %}
-			{% if forloop.counter0|divisibleby:2 %}
-				<input type="radio" id="toVote_{{ criteria.0 }}-{{ criteria.1 }}_{{ forloop.parentloop.parentloop.counter }}_{{ forloop.counter }}" name="{{ criteria.0 }}-{{ criteria.1 }}" value="{{ choice.0 }}" >
-				<label for="toVote_{{ criteria.0 }}-{{ criteria.1 }}_{{ forloop.parentloop.parentloop.counter }}_{{ forloop.counter }}">
-					{{ choice.1 }}{% if not forloop.counter == 9 %}{% if not hasParent %}é{% else %}{% if isCriteria %}é{% else %}ý{% endif %}{% endif %}{% endif %}
-				</label>
-			{% endif %}
-			{% endfor %}
-			<input type="submit" value="">
+				<div class="row">
+					<div class="show-for-large-up columns spacer"></div>
+				{% for choice in choices %}
+				{% if forloop.counter0|divisibleby:2 %}
+					<div class="columns small-12 medium-4 large-1">
+					<input type="radio" id="toVote_{{ criteria.0 }}-{{ criteria.1 }}_{{ forloop.parentloop.parentloop.counter }}_{{ forloop.counter }}" name="{{ criteria.0 }}-{{ criteria.1 }}" value="{{ choice.0 }}" >
+					<label for="toVote_{{ criteria.0 }}-{{ criteria.1 }}_{{ forloop.parentloop.parentloop.counter }}_{{ forloop.counter }}">
+						{{ choice.1 }}{% if not forloop.counter == 9 %}{% if not hasParent %}é{% else %}{% if isCriteria %}é{% else %}ý{% endif %}{% endif %}{% endif %}
+					</label>
+					</div>
+				{% endif %}
+				{% endfor %}
+
+				<input type="submit" value="">
+				</div>
 			</form>
 		</li>
 		{% endwith %}
@@ -102,7 +113,6 @@
 {% block javascript %}
 <script>
 	$(document).ready(function(){
-		$(".contentWrapper").css("overflow", "hidden");
 		$(".editForm").submit(function(e){
 			e.preventDefault();
 			$('.voteSlider').flexslider('next');
@@ -147,8 +157,6 @@
 		$(".vote").each(function(i, val){
 			$("."+$(this).data("vote-id")).remove();
 		});
-	});
-	$(window).load(function(){	
 		$('.voteSlider').flexslider({
 			animation: "slide",
 			// controlNav: false,
@@ -157,11 +165,11 @@
 			// smoothHeight: true,
 			directionNav: false,
 			after: function(slider){
-				setTimeout(function(){
-					$(".contentWrapper").css("overflow", "auto");
-				}, 100);
 	        },
 	        start: function(slider){
+	        	setTimeout(function(){
+					$(window).trigger('resize');
+				}, 100);
 	        }
 		});
 	});
