@@ -13,6 +13,17 @@ function openContent(elem){
 	}
 }
 
+function handleInviteResult(data){
+	handleData(data);
+	$.get( window.location.href + "simple", function( data ) {
+		var data = $(data);
+		$("#invited").html(data.find("#invited").html());
+		$("#uninvited").html(data.find("#uninvited").html());
+		console.log($("#invited"));
+		console.log($(data).find("#invited"));
+	});
+}
+
 function handleData(data){
 	var target = $("<div class='alert-box success custom'>"+data+"</div>");
 	var button = $("<a href='#' class='close'>&times;</a>").click(function(){
@@ -29,10 +40,6 @@ function handleData(data){
 			$(this).remove();
 		});
 	}, 3000);
-	// $.get( window.location.href + "simple", function( data ) {
-	// 	var data = $(data)
-	//   console.log(data);
-	// });
 }
 
 function initCollapsed(){

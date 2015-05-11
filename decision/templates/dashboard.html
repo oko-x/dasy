@@ -93,7 +93,6 @@
 	{% endwith %}
 	{% endwith %}
 	{% with invites=object.getUnrespondedInvites %}
-	{% if invites %}
 	<section class="invites">
 		<h2 class="widgetHeader">Invites</h2>
 		{% for item in invites %}
@@ -105,9 +104,10 @@
 				<a class="button tiny alert" href="javascript:removeInvite(event, {{ item.id }})"><i class="fa fa-times"></i></a>
 				<div class="collapsedContent">collapsed</div>
 			</div>
+		{% empty %}
+			<div class="description">You have no pending invites.</div>
 		{% endfor %}
 	</section>
-	{% endif %}
 	{% endwith %}
 {% endblock %}
 {% block javascript %}

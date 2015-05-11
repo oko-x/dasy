@@ -1,6 +1,6 @@
 {% extends "base.html" %}
-{% block title %}Decision detail{% endblock %}
-{% block header %}Decision detail{% endblock %}
+{% block title %}Decision detail: {{ object.name }}{% endblock %}
+{% block header %}Decision detail: {{ object.name }}{% endblock %}
 {% block buttons %}
 <a class="button" title="Späť na dashboard" href="{% url 'dashboard' %}"><i class="fa fa-times"></i></a>
 {% if wasInvited %}<a class="button" title="Párové porovnania" href="{% url 'decision_evaluate' object.id %}"><i class="fa fa-sliders"></i></a>{% endif %}
@@ -8,7 +8,7 @@
 {% block content %}
 {% with completeness=object.getDecisionDetailData %}
 <section>
-	<h2 class="widgetHeader">{{ object.name }}</h2>
+	<h2 class="widgetHeader">Main informations</h2>
 	<div class="row">
 		<div class="columns small-12 medium-4">
 			<div class="picture" style="background:url('{{ MEDIA_URL }}{{ object.image }}');"></div>
@@ -114,92 +114,13 @@
 	</div>
 	{% endfor %}
 </section>	
-{% with invited=object.getInvited %}
-{% if invited %}
-<section id="invited">
-	<h2 class="widgetHeader">Invited users</h2>
-	{% for item in invited %}
-		<div class="itemWrapper">
-			<i class="fa fa-plus" onclick="openContent(this);"></i>
-			<div class="avatar small" style="background:url('{{ MEDIA_URL }}{{ item.image }}');"></div>
-			<h2>{{ item.user.username }}</h2>
-			<div class="pair--header">
-				<span class="key">skill</span>
-				<span class="value">{{ item.get_weight_display  }}</span>
-			</div>
-			<div class="pair--header">
-				<span class="key">state</span>
-				<span class="value">{{ item.get_state_display  }}</span>
-			</div>
-			<div class="collapsedContent">
-				<div class="avatar" style="background:url('{{ MEDIA_URL }}{{ item.image }}');"></div>
-				<div class="innerContent">
-					<div class="row">
-						<div class="columns small-12 medium-8">
-							<h3 class="subsectionHeader">Info</h3>
-							<div class="pair">
-								<span class="key">name</span>
-								<span class="value">{{ item.first_name }} {{ item.last_name }}</span>
-							</div>
-							<div class="pair">
-								<span class="key">email</span>
-								<span class="value">{{ item.email }}</span>
-							</div>
-						</div>
-						<div class="columns small-12 medium-offset-2 medium-2">
-						</div>
-					</div>					
-				</div>
-			</div>
-		</div>
-	{% endfor %}
-</section>
-{% endif %}
-{% endwith %}
-{% with uninvited=object.getUninvited %}
-{% if uninvited %}
-<section id="uninvited">
-	<h2 class="widgetHeader">Uninvited users</h2>
-	{% for item in uninvited %}
-		<div class="itemWrapper">
-			<i class="fa fa-plus" onclick="openContent(this);"></i>
-			<div class="avatar small" style="background:url('{{ MEDIA_URL }}{{ item.image }}');"></div>
-			<h2>{{ item.username }}</h2>
-			<div class="pair--header">
-				<span class="key">name</span>
-				<span class="value">{{ item.first_name }} {{ item.last_name }}</span>
-			</div>
-			<div class="pair--header">
-				<span class="key">email</span>
-				<span class="value">{{ item.email }}</span>
-			</div>
-			<div class="collapsedContent">
-				<div class="avatar" style="background:url('{{ MEDIA_URL }}{{ item.image }}');"></div>
-				<div class="innerContent">
-					<div class="row">
-						<div class="columns small-12 medium-8">
-							<select class="userWeight">
-								<option value="" disabled selected>Select user skill level</option>
-							{% for weight in weights %}
 
-								<option value="{{weight.0}}">{{weight.1}}</option>
-							{% endfor %}
-							</select>	
-						</div>
-						<div class="columns small-12 medium-offset-2 medium-2">
-							<a class="button radius tiny" href="{% url 'invite_create' object.id item.id %}" onclick="post(this, event, {{ object.id }}, {{ item.id }})">Invite</a>
-						</div>
-					</div>					
-				</div>
-			</div>
-		</div>
-	{% endfor %}
-</section>
-{% endif %}
+{% include "simple_decision.html" %}
+
 {% if completeness.0 == 0 and completeness.1 == 0%}
 <ol class="joyride-list" data-joyride>
   <li data-id="firstStop" data-text="Show invitations" data-options="tip_location: top; prev_button: false">
-    <p>Your decision has no invited users yet.<br />Invite users to evaluate your decision process. You also need to invite yourself if you want to participate in the process also.</p>
+    <p>Your decision has no invited users yet.<br />Invite users to evaluate your decision process. You also need to invite yourself if you want to participate in the process.</p>
   </li>
   <li data-id="uninvited" data-button="Exit" data-options="tip_location: top; prev_button: false" data-prev-text="Prev">
     <p>Here you can invite users to participate on the decision process by selecting their expertise in the field of the decision process and clicking the invite button.</p>
@@ -237,7 +158,6 @@
 		},]
 	};
 </script>
-{% endwith %}
 {% endwith %}
 {% endblock %}
 {% block javascript %}
@@ -397,7 +317,7 @@ function post(link, event, decision_id, user_id){
 		"{% url 'invite_create' %}", 
 		{ decision_id: decision_id, user_id: user_id, user_weight: user_weight, csrfmiddlewaretoken: '{{ csrf_token }}' },
 		function(data){
-			handleData(data);
+			handleInviteResult(data);
 		}
 	);
 }
