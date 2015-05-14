@@ -92,7 +92,8 @@ def voteAdd(request):
     return HttpResponse("Vote saved")
 
 class DecisionDetailView(generic.DetailView):
-    queryset = Decision.objects.prefetch_related('criteria_variant_set', 'invite_set__customuser', 'invite_set')
+    model = Decision
+#     queryset = Decision.objects.prefetch_related()
     
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
