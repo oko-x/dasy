@@ -6,6 +6,7 @@
 {% if wasInvited %}<a class="button" title="Párové porovnania" href="{% url 'decision_evaluate' object.id %}"><i class="fa fa-sliders"></i></a>{% endif %}
 {% endblock %}
 {% block content %}
+{% with variants=object.getVariants %}
 {% with completeness=object.getDecisionDetailData %}
 <section>
 	<h2 class="widgetHeader">Main informations</h2>
@@ -34,7 +35,7 @@
 			<div class="row">
 				<h3 class="columns subsectionHeader">Results</h3>
 				<div class="columns small-12">
-					{% for item in object.getVariants %}
+					{% for item in variants %}
 						<div class="pair">
 							<span class="key">{{ item.0.name }}</span><span class="value">{{ item.1 }}</span><span class="symbol"> %</span>
 						</div>
@@ -87,7 +88,7 @@
 </section>
 <section>
 	<h2 class="widgetHeader">Variants</h2>
-		{% for item in object.getVariants %}
+		{% for item in variants %}
 	<div class="itemWrapper">
 		<i class="fa fa-plus" onclick="openContent(this);"></i>
 		<a href="{{item.get_absolute_url}}">
@@ -122,7 +123,7 @@
   <li data-id="firstStop" data-text="Show invitations" data-options="tip_location: top; prev_button: false">
     <p>Your decision has no invited users yet.<br />Invite users to evaluate your decision process. You also need to invite yourself if you want to participate in the process.</p>
   </li>
-  <li data-id="uninvited" data-button="Exit" data-options="tip_location: top; prev_button: false" data-prev-text="Prev">
+  <li data-id="uninvited" data-button="Close" data-options="tip_location: top; prev_button: false" data-prev-text="Prev">
     <p>Here you can invite users to participate on the decision process by selecting their expertise in the field of the decision process and clicking the invite button.</p>
   </li>
 </ol>
@@ -157,7 +158,18 @@
             ]
 		},]
 	};
+	var resultData = [
+	{% for item in variants %}
+		{
+		    value: {{ item.1 }},
+		    color: "#"+colors[{{ forloop.counter0 }} % 5],
+		    highlight: "#"+highlight[{{ forloop.counter0 }} % 5],
+		    label: "{{ item.0.name }}"
+		},
+	{% endfor %}
+	]
 </script>
+{% endwith %}
 {% endwith %}
 {% endblock %}
 {% block javascript %}
@@ -194,16 +206,6 @@ $(document).ready(function(){
 	}
 	var colors = ["3eb4c6", "37D391", "376CD3", "3A9DDD", "3ADDC6"];
 	var highlight = ["58CEE0", "51EDAB", "5186ED", "54B7F7", "54F7E0"];
-	var resultData = [
-	{% for item in object.getVariants %}
-		{
-		    value: {{ item.1 }},
-		    color: "#"+colors[{{ forloop.counter0 }} % 5],
-		    highlight: "#"+highlight[{{ forloop.counter0 }} % 5],
-		    label: "{{ item.0.name }}"
-		},
-	{% endfor %}
-	]
 	var completenessData = [
 	    {
 	        value: completeness,

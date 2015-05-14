@@ -49,6 +49,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'debug_toolbar',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -91,7 +92,7 @@ else:
             'USER':    'adminhh9rze7',
             'PASSWORD':'hB3VCyByGnH_',
             'HOST':    'localhost',
-            'PORT':    '63911',
+            'PORT':    '64219',
         }
     }
 

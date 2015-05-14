@@ -25,9 +25,9 @@ class CustomUser(AbstractUser):
     def getUnrespondedInvites(self):
         return self.invite_set.filter(state__in=["SE","SN"]).select_related('decision')
     def getDecisionsInvited(self):
-        return self.invite_set.filter(state="AC").select_related('decision')
+        return self.invite_set.filter(state="AC").select_related('decision').prefetch_related('decision__vote_set', 'decision__invite_set')
     def getDecisionsCreated(self):
-        return self.decision_set.exclude(invite__state__in=["AC"])
+        return self.decision_set.exclude(invite__state__in=["AC"]).prefetch_related('vote_set', 'invite_set')
     
 class Invite(models.Model):
     SENT = 'SE'
@@ -104,7 +104,6 @@ class Decision(models.Model):
         supermatrixTxt = str(self.lastSupermatrix)
         supermatrixTxt = supermatrixTxt.replace("[", "")
         supermatrixTxt = supermatrixTxt.replace("]", "")
-        self.evaluate()
         supermatrix = np.loadtxt(StringIO(supermatrixTxt))
         critChart = []
         varChart = []
@@ -130,10 +129,8 @@ class Decision(models.Model):
         completenessHistory = self.decisionvalue_set.all().order_by('date')
         return [completenessRemainder, currentCompleteness, completenessHistory, percentualCompleteness]
     def getCompleteness(self):
-        votes = self.vote_set.all()
-        votesLen = len(votes)
-        members = self.invite_set.filter(state="AC")
-        membersLen = len(members)
+        votesLen = self.vote_set.count()
+        membersLen = self.invite_set.filter(state="AC").count()
         if self.voteChange is False and votesLen == self.lastVotesCount and membersLen == self.lastMembersCount and self.lastCompleteness is not None and self.fullCompleteness is not None:
             print self.name + " cached"
             if self.fullCompleteness is 0:
@@ -142,10 +139,8 @@ class Decision(models.Model):
                 percentualCompleteness = round((self.lastCompleteness/float(self.fullCompleteness)*100),1)
             return [self.fullCompleteness, self.lastCompleteness, percentualCompleteness]
         if self.pairwiseCount is None:
-            criterias = self.criteria_variant_set.filter(crit_var=False).order_by('name')
-            variants = self.criteria_variant_set.filter(crit_var=True).order_by('name')
-            criteriasLen = len(criterias)
-            variantsLen = len(variants)
+            criteriasLen = self.criteria_variant_set.filter(crit_var=False).count()
+            variantsLen = self.criteria_variant_set.filter(crit_var=True).count()
             if criteriasLen < 2 or variantsLen < 2:
                 return
             pairwiseCount = nCr(criteriasLen, 2)
