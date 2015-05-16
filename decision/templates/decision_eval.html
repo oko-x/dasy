@@ -2,7 +2,18 @@
 {% block title %}Hodnotenie: {{ decision.name }}{% endblock %}
 {% block header %}Hodnotenie: {{ decision.name }}{% endblock %}
 {% block buttons %}
-<a class="button" title="Hotovo" href="{% url 'decision_detail' decision.id %}"><i class="fa fa-check"></i></a>
+<a class="button hidden" id="leaveCompletedPairwiseButton" title="Close pairwise comparisons" href="{% url 'decision_detail' decision.id %}"><i class="fa fa-check"></i></a>
+<a class="button" id="leaveUncompletedPairwiseButton" data-reveal-id="confirmLeaveModal" title="Close pairwise comparisons" href=""><i class="fa fa-times"></i></a>
+<div id="confirmLeaveModal" class="reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
+	<h2 id="modalTitle">Are you sure?</h2>
+	{# <p class="lead"></p> #}
+	<p>You haven´t finished evaluation of all pairwise comparisons yet, so the result will be incomplete. But if you really need to go, you can resume where you left at any time.</p>
+	<ul class="button-group radius">
+	  <li><a href="#" class="button success" onclick="$('#confirmLeaveModal').foundation('reveal', 'close');">Continue</a></li>
+	  <li><a href="{% url 'decision_detail' decision.id %}" class="button alert">Leave anyway</a></li>
+	</ul>
+	<a class="close-reveal-modal" aria-label="Close">&#215;</a>
+</div>
 {% endblock %}
 {% block content %}
 <section class="voteSlider">
@@ -135,6 +146,7 @@
 		});
 		$(".createForm").submit(function(e){
 			e.preventDefault();
+			var sliderNavCurrent = $(".flex-control-nav").find(".flex-active").parent();
 			$('.voteSlider').flexslider('next');
 
 			$.post(
@@ -150,12 +162,19 @@
 				},
 				function(data){
 					handleData(data);
+					sliderNavCurrent.addClass("voted");
+					checkIfComplete();
 				}
 			);
 
 		});
+		var voted = [];
 		$(".vote").each(function(i, val){
-			$("."+$(this).data("vote-id")).remove();
+			var target = $("."+$(this).data("vote-id"));
+			if(target.length){
+				target.remove();
+				voted.push(i);
+			}
 		});
 		$('.voteSlider').flexslider({
 			animation: "slide",
@@ -169,9 +188,26 @@
 	        start: function(slider){
 	        	setTimeout(function(){
 					$(window).trigger('resize');
+					$.each(voted, function(i, val){
+						$(".flex-control-nav").children().eq(val).addClass("voted");
+					});
+					if(!checkIfComplete()){
+						$('.voteSlider').flexslider(voted[voted.length-1]+1);	
+					}
 				}, 100);
 	        }
 		});
 	});
+
+	function checkIfComplete(){
+		var notVoted = $(".flex-control-nav li").not(".voted");
+		if(!notVoted.length){
+			$("#leaveUncompletedPairwiseButton").hide();
+			$("#leaveCompletedPairwiseButton").show();
+			return true;
+		}else{
+			return false;
+		}
+	}
 </script>
 {% endblock %}
