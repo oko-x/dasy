@@ -27,7 +27,7 @@ else:
 # adjust to turn off when on Openshift, but allow an environment variable to override on PAAS
 DEBUG = not ON_PAAS
 DEBUG = DEBUG or 'DEBUG' in os.environ
-DEBUG = True
+
 if ON_PAAS and DEBUG:
     print("*** Warning - Debug mode is on ***")
 
@@ -40,17 +40,27 @@ else:
 
 
 # Application definition
-
-INSTALLED_APPS = (
-    'decision',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'debug_toolbar',
-)
+if ON_PAAS:
+    INSTALLED_APPS = (
+        'decision',
+        'django.contrib.admin',
+        'django.contrib.auth',
+        'django.contrib.contenttypes',
+        'django.contrib.sessions',
+        'django.contrib.messages',
+        'django.contrib.staticfiles',
+    )
+else:
+    INSTALLED_APPS = (
+        'decision',
+        'django.contrib.admin',
+        'django.contrib.auth',
+        'django.contrib.contenttypes',
+        'django.contrib.sessions',
+        'django.contrib.messages',
+        'django.contrib.staticfiles',
+        'debug_toolbar',
+    )
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
