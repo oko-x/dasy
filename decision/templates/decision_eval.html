@@ -191,7 +191,7 @@
 					$.each(voted, function(i, val){
 						$(".flex-control-nav").children().eq(val).addClass("voted");
 					});
-					if(!checkIfComplete()){
+					if((!checkIfComplete()) && (voted.length)){
 						$('.voteSlider').flexslider(voted[voted.length-1]+1);	
 					}
 				}, 100);
