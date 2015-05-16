@@ -1,93 +1,33 @@
-<div class="ajaxWrapper">
-<section id="invited">
-	<div class="spinnerWrapper hidden">
-		<div class="spinner">
-		  <div class="double-bounce1"></div>
-		  <div class="double-bounce2"></div>
+<div class="itemWrapper">
+	<i class="fa fa-plus" onclick="openContent(this);"></i>
+	<div class="avatar small" style="background:url('{{ MEDIA_URL }}{{ item.user.image }}');"></div>
+	<h2>{{ item.user.username }}</h2>
+	<div class="pair--header">
+		<span class="key">skill</span>
+		<span class="value">{{ item.get_weight_display  }}</span>
+	</div>
+	<div class="pair--header">
+		<span class="key">state</span>
+		<span class="value">{{ item.get_state_display  }}</span>
+	</div>
+	<div class="collapsedContent">
+		<div class="avatar" style="background:url('{{ MEDIA_URL }}{{ item.user.image }}');"></div>
+		<div class="innerContent">
+			<div class="row">
+				<div class="columns small-12 medium-8">
+					<h3 class="subsectionHeader">Info</h3>
+					<div class="pair">
+						<span class="key">name</span>
+						<span class="value">{{ item.user.first_name }} {{ item.user.last_name }}</span>
+					</div>
+					<div class="pair">
+						<span class="key">email</span>
+						<span class="value">{{ item.user.email }}</span>
+					</div>
+				</div>
+				<div class="columns small-12 medium-offset-2 medium-2">
+				</div>
+			</div>					
 		</div>
 	</div>
-	<h2 class="widgetHeader">Invited users</h2>
-	{% for item in object.getInvited %}
-		<div class="itemWrapper">
-			<i class="fa fa-plus" onclick="openContent(this);"></i>
-			<div class="avatar small" style="background:url('{{ MEDIA_URL }}{{ item.image }}');"></div>
-			<h2>{{ item.user.username }}</h2>
-			<div class="pair--header">
-				<span class="key">skill</span>
-				<span class="value">{{ item.get_weight_display  }}</span>
-			</div>
-			<div class="pair--header">
-				<span class="key">state</span>
-				<span class="value">{{ item.get_state_display  }}</span>
-			</div>
-			<div class="collapsedContent">
-				<div class="avatar" style="background:url('{{ MEDIA_URL }}{{ item.image }}');"></div>
-				<div class="innerContent">
-					<div class="row">
-						<div class="columns small-12 medium-8">
-							<h3 class="subsectionHeader">Info</h3>
-							<div class="pair">
-								<span class="key">name</span>
-								<span class="value">{{ item.first_name }} {{ item.last_name }}</span>
-							</div>
-							<div class="pair">
-								<span class="key">email</span>
-								<span class="value">{{ item.email }}</span>
-							</div>
-						</div>
-						<div class="columns small-12 medium-offset-2 medium-2">
-						</div>
-					</div>					
-				</div>
-			</div>
-		</div>
-	{% empty %}
-		<div class="description">Your decision has no invited users yet.<br />Invite users to evaluate your decision process. You also need to invite yourself if you want to participate in the process.</div>
-	{% endfor %}
-</section>
-<section id="uninvited">
-	<div class="spinnerWrapper hidden">
-		<div class="spinner">
-		  <div class="double-bounce1"></div>
-		  <div class="double-bounce2"></div>
-		</div>
-	</div>
-	<h2 class="widgetHeader">Uninvited users</h2>
-	{% for item in object.getUninvited %}
-		<div class="itemWrapper">
-			<i class="fa fa-plus" onclick="openContent(this);"></i>
-			<div class="avatar small" style="background:url('{{ MEDIA_URL }}{{ item.image }}');"></div>
-			<h2>{{ item.username }}</h2>
-			<div class="pair--header">
-				<span class="key">name</span>
-				<span class="value">{{ item.first_name }} {{ item.last_name }}</span>
-			</div>
-			<div class="pair--header">
-				<span class="key">email</span>
-				<span class="value">{{ item.email }}</span>
-			</div>
-			<div class="collapsedContent">
-				<div class="avatar" style="background:url('{{ MEDIA_URL }}{{ item.image }}');"></div>
-				<div class="innerContent">
-					<div class="row">
-						<div class="columns small-12 medium-8">
-							<select class="userWeight">
-								<option value="" disabled selected>Select user skill level</option>
-							{% for weight in weights %}
-
-								<option value="{{weight.0}}">{{weight.1}}</option>
-							{% endfor %}
-							</select>	
-						</div>
-						<div class="columns small-12 medium-offset-2 medium-2">
-							<a class="button radius tiny" href="{% url 'invite_create' object.id item.id %}" onclick="post(this, event, {{ object.id }}, {{ item.id }})">Invite</a>
-						</div>
-					</div>					
-				</div>
-			</div>
-		</div>
-	{% empty %}
-		<div class="description">You already invited all users.</div>
-	{% endfor %}
-</section>
 </div>

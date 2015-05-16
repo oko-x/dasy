@@ -5,12 +5,12 @@
 	{% with invites=user.getDecisionsInvited %}
 	{% with decisions=user.getDecisionsCreated %}
 	<section id="decisions">
-		<div class="spinnerWrapper hidden">
+		<span class="spinnerWrapper hidden">
 			<div class="spinner">
 			  <div class="double-bounce1"></div>
 			  <div class="double-bounce2"></div>
 			</div>
-		</div>
+		</span>
 		<h2 class="widgetHeader">My Decisions</h2>
 		{% if not invites and not decisions %}
 			<div class="description empty_note">You have no decisions yet, create one or wait till you are invited to participate.</div>
@@ -29,12 +29,12 @@
 	{% with invites=object.getUnrespondedInvites %}
 	<section id="invites">
 		<h2 class="widgetHeader">Invites</h2>
-		<div class="spinnerWrapper hidden">
+		<span class="spinnerWrapper hidden">
 			<div class="spinner">
 			  <div class="double-bounce1"></div>
 			  <div class="double-bounce2"></div>
 			</div>
-		</div>
+		</span>
 		{% for item in invites %}
 			<div class="itemWrapper" id="invite_{{ item.id }}">
 				<i class="fa fa-plus" onclick="openContent(this);"></i>

@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
-from django.http.response import HttpResponseRedirect
+from django.http.response import HttpResponseRedirect, JsonResponse
 from django.utils.decorators import method_decorator
 from django.views import generic
 
@@ -26,12 +26,14 @@ def inviteCreate(request, decision_id=None, user_id=None):
                weight=user_weight,
                decision=Decision.objects.get(pk=decision_id),
                state=state)
-#     i.save()
+    i.save()
     if request.is_ajax():
         if state is "AC":
-            return HttpResponse("Invite sent and accepted")
+            return JsonResponse({'message':"Invite sent and accepted",
+                                 'invite_id':i.pk})
         else:
-            return HttpResponse("Invite sent")
+            return JsonResponse({'message':"Invite sent",
+                                 'invite_id':i.pk})
     else:
         return HttpResponseRedirect(reverse('decision_detail', args=[decision_id]))
     
@@ -109,7 +111,7 @@ class DecisionDashboardInfo(generic.TemplateView):
 
 class DecisionDetailView(generic.DetailView):
     model = Decision
-#     queryset = Decision.objects.prefetch_related()
+    queryset = Decision.objects.prefetch_related('invite_set', 'invite_set__user')
     
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -121,13 +123,17 @@ class DecisionDetailView(generic.DetailView):
         context['wasInvited'] = self.object.invite_set.filter(user=self.request.user, state="AC").count()
         return context
 
-class DecisionSimpleDetailView(generic.DetailView):
-    model = Decision
+class DecisionUsersDetailView(generic.TemplateView):
     template_name = "decision_users.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super(DecisionUsersDetailView, self).get_context_data(**kwargs)
+        context['item'] = Invite.objects.get(pk=kwargs['invite_id'])
+        return context
     
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        return super(DecisionSimpleDetailView, self).dispatch(*args, **kwargs)
+        return super(DecisionUsersDetailView, self).dispatch(*args, **kwargs)
     
 class UserCreateView(generic.CreateView):
     model = CustomUser

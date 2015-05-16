@@ -16,26 +16,41 @@ function openContent(elem){
 function handleInviteAccept(data, inviteId, decisionId){
 	handleData(data);
 	$.get( window.location.href + "decision/" + decisionId + "/info/" + inviteId, function( data ) {
+		var data = $(data);
 		$("#decisions .empty_note").remove();
 		$("#decisions").append(data);
+		data.slideUp(0, function(){
+			$(this).slideDown(300);
+		});
+		data.find(".collapsedContent").each(function(){
+			$(this).css("height", "auto");
+			$(this).css("height", $(this).height());
+			$(this).addClass("collapsed");
+		});
 		$("#decisions .spinnerWrapper").fadeOut(300);
 	});
 }
 
 function handleInviteResult(data){
-	handleData(data);
+	handleData(data['message']);
+	var invite_id = data['invite_id'];
 	var accepted = false;
 	if(data = "Invite sent and accepted"){
 		accepted = true;
 	}
-	$.get( window.location.href + "simple", function( data ) {
+	$.get( window.location.href + "users/" + invite_id, function( data ) {
 		var data = $(data);
-		$("#invited").html(data.find("#invited").html());
-		$("#uninvited").html(data.find("#uninvited").html());
-		$("#invited, #uninvited").find(".spinnerWrapper").fadeOut(300);
-		if(accepted){
-			$("#pairwiseButton").show().trigger("mouseenter");
-		}
+		$("#invited .empty_note").remove();
+		$("#invited").append(data);
+		data.slideUp(0, function(){
+			$(this).slideDown(300);
+		});
+		data.find(".collapsedContent").each(function(){
+			$(this).css("height", "auto");
+			$(this).css("height", $(this).height());
+			$(this).addClass("collapsed");
+		});
+		$("#invited .spinnerWrapper").fadeOut(300);
 	});
 }
 

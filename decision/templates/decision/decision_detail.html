@@ -115,12 +115,69 @@
 	</div>
 	{% endfor %}
 </section>	
+<section id="invited">
+	<span class="spinnerWrapper hidden">
+		<div class="spinner">
+		  <div class="double-bounce1"></div>
+		  <div class="double-bounce2"></div>
+		</div>
+	</span>
+	<h2 class="widgetHeader">Invited users</h2>
+	{% for item in object.getInvited %}
+		{% include "decision_users.html" %}
+	{% empty %}
+		<div class="description empty_note">Your decision has no invited users yet.<br />Invite users to evaluate your decision process. You also need to invite yourself if you want to participate in the process.</div>
+	{% endfor %}
+</section>
+<section id="uninvited">
+	<span class="spinnerWrapper hidden">
+		<div class="spinner">
+		  <div class="double-bounce1"></div>
+		  <div class="double-bounce2"></div>
+		</div>
+	</span>
+	<h2 class="widgetHeader">Uninvited users</h2>
+	{% for item in object.getUninvited %}
+		<div class="itemWrapper" id="user_{{ item.id }}">
+			<i class="fa fa-plus" onclick="openContent(this);"></i>
+			<div class="avatar small" style="background:url('{{ MEDIA_URL }}{{ item.image }}');"></div>
+			<h2>{{ item.username }}</h2>
+			<div class="pair--header">
+				<span class="key">name</span>
+				<span class="value">{{ item.first_name }} {{ item.last_name }}</span>
+			</div>
+			<div class="pair--header">
+				<span class="key">email</span>
+				<span class="value">{{ item.email }}</span>
+			</div>
+			<div class="collapsedContent">
+				<div class="avatar" style="background:url('{{ MEDIA_URL }}{{ item.image }}');"></div>
+				<div class="innerContent">
+					<div class="row">
+						<div class="columns small-12 medium-8">
+							<select class="userWeight">
+								<option value="" disabled selected>Select user skill level</option>
+							{% for weight in weights %}
 
-{% include "decision_users.html" %}
+								<option value="{{weight.0}}">{{weight.1}}</option>
+							{% endfor %}
+							</select>	
+						</div>
+						<div class="columns small-12 medium-offset-2 medium-2">
+							<a class="button radius tiny" href="{% url 'invite_create' object.id item.id %}" onclick="post(this, event, {{ object.id }}, {{ item.id }})">Invite</a>
+						</div>
+					</div>					
+				</div>
+			</div>
+		</div>
+	{% empty %}
+		<div class="description empty_note">No other users to invite.</div>
+	{% endfor %}
+</section>
 
-{% if completeness.0 == 0 and completeness.1 == 0%}
+{% if completeness.0 == 0 and completeness.1 == 0 %}
 <ol class="joyride-list" data-joyride>
-  <li data-id="firstStop" data-text="Show invitations" data-options="tip_location: top; prev_button: false">
+  <li data-id="firstStop" data-text="Show invitations" data-options="tip_location: bottom; prev_button: false">
     <p>Your decision has no invited users yet.<br />Invite users to evaluate your decision process. You also need to invite yourself if you want to participate in the process.</p>
   </li>
   <li data-id="uninvited" data-button="Close" data-options="tip_location: top; prev_button: false" data-prev-text="Prev">
@@ -321,9 +378,19 @@ function post(link, event, decision_id, user_id){
 		{ decision_id: decision_id, user_id: user_id, user_weight: user_weight, csrfmiddlewaretoken: '{{ csrf_token }}' },
 		function(data){
 			handleInviteResult(data);
+			physicallyRemoveUser(user_id);
 		}
 	);
 }
+function physicallyRemoveUser(userId){
+		$("#uninvited .spinnerWrapper").fadeOut(300);
+		$("#user_"+userId).hide(function(){
+			$(this).remove();
+			if(!$("#uninvited .itemWrapper").length){
+				$("#uninvited").append("<div class='description empty_note'>No other users to invite.</div>");
+			}
+		});
+	}
 </script>
 {% endwith %}
 {% endblock %}
