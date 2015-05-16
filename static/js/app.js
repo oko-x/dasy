@@ -35,7 +35,7 @@ function handleInviteResult(data){
 	handleData(data['message']);
 	var invite_id = data['invite_id'];
 	var accepted = false;
-	if(data['message'] = "Invite sent and accepted"){
+	if(data['current_user'] == "true"){
 		accepted = true;
 	}
 	$.get( window.location.href + "users/" + invite_id, function( data ) {

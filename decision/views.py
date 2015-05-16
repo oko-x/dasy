@@ -30,10 +30,12 @@ def inviteCreate(request, decision_id=None, user_id=None):
     if request.is_ajax():
         if state is "AC":
             return JsonResponse({'message':"Invite sent and accepted",
-                                 'invite_id':i.pk})
+                                 'invite_id':i.pk,
+                                 'current_user':'true'})
         else:
             return JsonResponse({'message':"Invite sent",
-                                 'invite_id':i.pk})
+                                 'invite_id':i.pk,
+                                 'current_user':'false'})
     else:
         return HttpResponseRedirect(reverse('decision_detail', args=[decision_id]))
     
