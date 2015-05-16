@@ -13,14 +13,29 @@ function openContent(elem){
 	}
 }
 
+function handleInviteAccept(data, inviteId, decisionId){
+	handleData(data);
+	$.get( window.location.href + "decision/" + decisionId + "/info/" + inviteId, function( data ) {
+		$("#decisions .empty_note").remove();
+		$("#decisions").append(data);
+		$("#decisions .spinnerWrapper").fadeOut(300);
+	});
+}
+
 function handleInviteResult(data){
 	handleData(data);
+	var accepted = false;
+	if(data = "Invite sent and accepted"){
+		accepted = true;
+	}
 	$.get( window.location.href + "simple", function( data ) {
 		var data = $(data);
 		$("#invited").html(data.find("#invited").html());
 		$("#uninvited").html(data.find("#uninvited").html());
-		console.log($("#invited"));
-		console.log($(data).find("#invited"));
+		$("#invited, #uninvited").find(".spinnerWrapper").fadeOut(300);
+		if(accepted){
+			$("#pairwiseButton").show().trigger("mouseenter");
+		}
 	});
 }
 

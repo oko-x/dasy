@@ -1,5 +1,11 @@
 <div class="ajaxWrapper">
 <section id="invited">
+	<div class="spinnerWrapper hidden">
+		<div class="spinner">
+		  <div class="double-bounce1"></div>
+		  <div class="double-bounce2"></div>
+		</div>
+	</div>
 	<h2 class="widgetHeader">Invited users</h2>
 	{% for item in object.getInvited %}
 		<div class="itemWrapper">
@@ -40,6 +46,12 @@
 	{% endfor %}
 </section>
 <section id="uninvited">
+	<div class="spinnerWrapper hidden">
+		<div class="spinner">
+		  <div class="double-bounce1"></div>
+		  <div class="double-bounce2"></div>
+		</div>
+	</div>
 	<h2 class="widgetHeader">Uninvited users</h2>
 	{% for item in object.getUninvited %}
 		<div class="itemWrapper">

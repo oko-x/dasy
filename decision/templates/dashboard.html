@@ -4,115 +4,57 @@
 {% block content %}
 	{% with invites=user.getDecisionsInvited %}
 	{% with decisions=user.getDecisionsCreated %}
-	<section class="decisions">
+	<section id="decisions">
+		<div class="spinnerWrapper hidden">
+			<div class="spinner">
+			  <div class="double-bounce1"></div>
+			  <div class="double-bounce2"></div>
+			</div>
+		</div>
 		<h2 class="widgetHeader">My Decisions</h2>
 		{% if not invites and not decisions %}
-			<div class="description">You have no decisions yet, create one or wait till you are invited to participate.</div>
+			<div class="description empty_note">You have no decisions yet, create one or wait till you are invited to participate.</div>
 		{% endif %}
 	{% for invite in invites %}
-		<div class="itemWrapper">
-			<i class="fa fa-plus" onclick="openContent(this);"></i>
-			<a href="{% url 'decision_detail' invite.decision.id %}">
-				<h2>{{ invite.decision.name }}</h2>
-			</a>
-			<div class="pair--header">
-				<span class="key">completeness</span>
-				<span class="value">{{ invite.decision.getCompleteness.2 }}</span>
-				<span class="symbol"> %</span>
-			</div>
-			<div class="pair--header">
-				<span class="key">role</span>
-				<span class="value">participant{% if invite.decision.creator == request.user %}, admin{% endif %}</span>
-			</div>
-			<div class="collapsedContent">
-				<div class="row">
-					<div class="columns small-12 medium-4">
-						<div class="picture" style="background:url('{{ MEDIA_URL }}{{ invite.decision.image }}');"></div>
-					</div>
-					<div class="columns small-12 medium-4">
-						<h3 class="subsectionHeader">Description</h3>
-						<p class="description">{{ invite.decision.description }}</p>
-						<h3 class="subsectionHeader margin--top">Info</h3>
-						<div class="pair">
-							<span class="key">created</span>
-							<span class="value">{{ invite.decision.published }}</span>
-						</div>
-						<div class="pair">
-							<span class="key">created by</span>
-							<span class="value">{{ invite.decision.creator.first_name }} {{ invite.decision.creator.last_name }} ({{ invite.decision.creator.username }})</span>
-						</div>
-					</div>
-					<div class="columns small-12 medium-4">
-						<canvas class="generalChart" id="decision_{{invite.decision.id}}"></canvas>
-					</div>
-				</div>
-			</div>
-		</div>
+	{% with decision=invite.decision %}
+		{% include "decision_info.html" %}
+	{% endwith %}
 	{% endfor %}
 	{% for decision in decisions %}
-		<div class="itemWrapper">
-			<i class="fa fa-plus" onclick="openContent(this);"></i>
-			<a href="{% url 'decision_detail' decision.id %}">
-				<h2>{{ decision.name }}</h2>
-			</a>
-			<div class="pair--header">
-				<span class="key">completeness</span>
-				<span class="value">{{ decision.getCompleteness.2 }}</span>
-				<span class="symbol"> %</span>
-			</div>
-			<div class="pair--header">
-				<span class="key">role</span>
-				<span class="value">admin</span>
-			</div>
-			<div class="collapsedContent">
-				<div class="row">
-					<div class="columns small-12 medium-4">
-						<div class="picture" style="background:url('{{ MEDIA_URL }}{{ decision.image }}');"></div>
-					</div>
-					<div class="columns small-12 medium-4">
-						<h3 class="subsectionHeader">Description</h3>
-						<p class="description">{{ decision.description }}</p>
-						<h3 class="subsectionHeader margin--top">Info</h3>
-						<div class="pair">
-							<span class="key">created</span>
-							<span class="value">{{ decision.published }}</span>
-						</div>
-						<div class="pair">
-							<span class="key">created by</span>
-							<span class="value">{{ decision.creator.first_name }} {{ decision.creator.last_name }} ({{ decision.creator.username }})</span>
-						</div>
-					</div>
-					<div class="columns small-12 medium-4">
-						<canvas class="generalChart" id="decision_{{decision.id}}"></canvas>
-					</div>
-				</div>
-			</div>
-		</div>
+		{% include "decision_info.html" %}
 	{% endfor %}
 	</section>
 	{% endwith %}
 	{% endwith %}
 	{% with invites=object.getUnrespondedInvites %}
-	<section class="invites">
+	<section id="invites">
 		<h2 class="widgetHeader">Invites</h2>
+		<div class="spinnerWrapper hidden">
+			<div class="spinner">
+			  <div class="double-bounce1"></div>
+			  <div class="double-bounce2"></div>
+			</div>
+		</div>
 		{% for item in invites %}
-			<div class="itemWrapper">
+			<div class="itemWrapper" id="invite_{{ item.id }}">
 				<i class="fa fa-plus" onclick="openContent(this);"></i>
 				<a href="{% url 'decision_detail' item.decision.id %}"><h2>{{ item.decision.name }}</h2></a>
 				State: {{ item.get_state_display }}
-				<a class="button tiny success" href="javascript:acceptInvite(event, {{ item.id }})"><i class="fa fa-check"></i></a>
-				<a class="button tiny alert" href="javascript:removeInvite(event, {{ item.id }})"><i class="fa fa-times"></i></a>
+				<a class="label radius success" href="javascript:acceptInvite(event, {{ item.id }}, {{ item.decision.id }})"><i class="fa fa-check"></i></a>
+				<a class="label radius alert" href="javascript:removeInvite(event, {{ item.id }})"><i class="fa fa-times"></i></a>
 				<div class="collapsedContent">collapsed</div>
 			</div>
 		{% empty %}
-			<div class="description">You have no pending invites.</div>
+			<div class="description empty_note">You have no pending invites.</div>
 		{% endfor %}
 	</section>
 	{% endwith %}
 {% endblock %}
 {% block javascript %}
 <script>
-	function acceptInvite(event, inviteId){
+	function acceptInvite(event, inviteId, decisionId){
+		$("#decisions .spinnerWrapper").fadeIn(300);
+		$("#invites .spinnerWrapper").fadeIn(300);
 		$.post(
 			"{% url 'invite_accept' %}",
 			{ 
@@ -120,11 +62,13 @@
 				csrfmiddlewaretoken: '{{ csrf_token }}' 
 			},
 			function(data){
-				handleData(data);
+				handleInviteAccept(data, inviteId, decisionId);
+				physicallyRemoveInvite(inviteId);
 			}
 		);
 	}
 	function removeInvite(event, inviteId){
+		$("#invites .spinnerWrapper").fadeIn(300);
 		$.post(
 			"{% url 'invite_remove' %}",
 			{ 
@@ -133,9 +77,18 @@
 			},
 			function(data){
 				handleData(data);
+				physicallyRemoveInvite(inviteId);
 			}
 		);
 	}	
-	
+	function physicallyRemoveInvite(inviteId){
+		$("#invites .spinnerWrapper").fadeOut(300);
+		$("#invite_"+inviteId).hide(function(){
+			$(this).remove();
+			if(!$("#invites .itemWrapper").length){
+				$("#invites").append("<div class='description empty_note'>You have no pending invites.</div>");
+			}
+		});
+	}
 </script>
 {% endblock %}

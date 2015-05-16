@@ -3,13 +3,13 @@
 {% block header %}Decision detail: {{ object.name }}{% endblock %}
 {% block buttons %}
 <a class="button" title="Späť na dashboard" href="{% url 'dashboard' %}"><i class="fa fa-times"></i></a>
-{% if wasInvited %}<a class="button" title="Párové porovnania" href="{% url 'decision_evaluate' object.id %}"><i class="fa fa-sliders"></i></a>{% endif %}
+<a data-tooltip aria-haspopup="true" title="{% if wasInvited == 0 %}You successfully added yourself to this decision process, continue with evaluation of pairwise comparisons.{% else %}Pairwise comparison{% endif %}" class="button{% if wasInvited == 0 %} hidden{% endif %}" id="pairwiseButton" title="Pairwise comparison" href="{% url 'decision_evaluate' object.id %}"><i class="fa fa-sliders"></i></a>
 {% endblock %}
 {% block content %}
-{% with variants=object.getVariants %}
 {% with completeness=object.getDecisionDetailData %}
+{% with variants=object.getVariants %}
 <section>
-	<h2 class="widgetHeader">Main informations</h2>
+	<h2 class="widgetHeader">General informations</h2>
 	<div class="row">
 		<div class="columns small-12 medium-4">
 			<div class="picture" style="background:url('{{ MEDIA_URL }}{{ object.image }}');"></div>
@@ -116,7 +116,7 @@
 	{% endfor %}
 </section>	
 
-{% include "simple_decision.html" %}
+{% include "decision_users.html" %}
 
 {% if completeness.0 == 0 and completeness.1 == 0%}
 <ol class="joyride-list" data-joyride>
@@ -158,6 +158,8 @@
             ]
 		},]
 	};
+	var colors = ["3eb4c6", "37D391", "376CD3", "3A9DDD", "3ADDC6"];
+	var highlight = ["58CEE0", "51EDAB", "5186ED", "54B7F7", "54F7E0"];
 	var resultData = [
 	{% for item in variants %}
 		{
@@ -204,8 +206,6 @@ $(document).ready(function(){
 	    //Boolean - Whether we animate scaling the Doughnut from the centre
 	    animateScale : false,
 	}
-	var colors = ["3eb4c6", "37D391", "376CD3", "3A9DDD", "3ADDC6"];
-	var highlight = ["58CEE0", "51EDAB", "5186ED", "54B7F7", "54F7E0"];
 	var completenessData = [
 	    {
 	        value: completeness,
@@ -314,6 +314,7 @@ function post(link, event, decision_id, user_id){
 	event.preventDefault();
 
 	var user_weight = $(link).parent().parent().find(".userWeight").val();
+	$("#invited, #uninvited").find(".spinnerWrapper").fadeIn(300);
 
 	$.post(
 		"{% url 'invite_create' %}", 

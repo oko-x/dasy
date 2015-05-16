@@ -26,9 +26,12 @@ def inviteCreate(request, decision_id=None, user_id=None):
                weight=user_weight,
                decision=Decision.objects.get(pk=decision_id),
                state=state)
-    i.save()
+#     i.save()
     if request.is_ajax():
-        return HttpResponse("Invite sent")
+        if state is "AC":
+            return HttpResponse("Invite sent and accepted")
+        else:
+            return HttpResponse("Invite sent")
     else:
         return HttpResponseRedirect(reverse('decision_detail', args=[decision_id]))
     
@@ -91,6 +94,19 @@ def voteAdd(request):
         vote.save()
     return HttpResponse("Vote saved")
 
+class DecisionDashboardInfo(generic.TemplateView):
+    template_name = "decision_info.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super(DecisionDashboardInfo, self).get_context_data(**kwargs)
+        context['decision'] = Decision.objects.get(pk=kwargs['pk'])
+        context['invite'] = Invite.objects.get(pk=kwargs['invite_id'])
+        return context
+    
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(DecisionDashboardInfo, self).dispatch(*args, **kwargs)
+
 class DecisionDetailView(generic.DetailView):
     model = Decision
 #     queryset = Decision.objects.prefetch_related()
@@ -102,12 +118,12 @@ class DecisionDetailView(generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super(DecisionDetailView, self).get_context_data(**kwargs)
         context['weights'] = Invite.WEIGHT_CHOICES
-        context['wasInvited'] = self.object.invite_set.filter(user=self.request.user, state="AC")
+        context['wasInvited'] = self.object.invite_set.filter(user=self.request.user, state="AC").count()
         return context
 
 class DecisionSimpleDetailView(generic.DetailView):
     model = Decision
-    template_name = "simple_decision.html"
+    template_name = "decision_users.html"
     
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
