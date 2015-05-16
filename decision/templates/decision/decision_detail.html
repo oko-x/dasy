@@ -3,13 +3,13 @@
 {% block header %}Decision detail: {{ object.name }}{% endblock %}
 {% block buttons %}
 <a class="button" title="Späť na dashboard" href="{% url 'dashboard' %}"><i class="fa fa-times"></i></a>
-<a data-tooltip aria-haspopup="true" title="{% if wasInvited == 0 %}You successfully added yourself to this decision process, continue with evaluation of pairwise comparisons.{% else %}Pairwise comparison{% endif %}" class="button{% if wasInvited == 0 %} hidden{% endif %}" id="pairwiseButton" title="Pairwise comparison" href="{% url 'decision_evaluate' object.id %}"><i class="fa fa-sliders"></i></a>
+<a data-tooltip aria-haspopup="true" title="{% if wasInvited == 0 %}You successfully added yourself to this decision process, continue with the evaluation of pairwise comparisons.{% else %}Pairwise comparison{% endif %}" class="button{% if wasInvited == 0 %} hidden{% endif %}" id="pairwiseButton" title="Pairwise comparison" href="{% url 'decision_evaluate' object.id %}"><i class="fa fa-sliders"></i></a>
 {% endblock %}
 {% block content %}
 {% with completeness=object.getDecisionDetailData %}
 {% with variants=object.getVariants %}
 <section>
-	<h2 class="widgetHeader">General informations</h2>
+	<h2 class="widgetHeader" id="firstStop">General informations</h2>
 	<div class="row">
 		<div class="columns small-12 medium-4">
 			<div class="picture" style="background:url('{{ MEDIA_URL }}{{ object.image }}');"></div>
@@ -27,7 +27,7 @@
 					<div class="pair">
 						<span class="key">Created</span><span class="value">{{ decision.published }}</span>
 					</div>
-					<div class="pair" id="firstStop">
+					<div class="pair">
 						<span class="key">Completeness</span><span class="value">{{ completeness.3 }}</span><span class="symbol"> %</span>
 					</div>
 				</div>
@@ -115,6 +115,7 @@
 	</div>
 	{% endfor %}
 </section>	
+{% with invited=object.getInvited %}
 <section id="invited">
 	<span class="spinnerWrapper hidden">
 		<div class="spinner">
@@ -123,10 +124,10 @@
 		</div>
 	</span>
 	<h2 class="widgetHeader">Invited users</h2>
-	{% for item in object.getInvited %}
+	{% for item in invited %}
 		{% include "decision_users.html" %}
 	{% empty %}
-		<div class="description empty_note">Your decision has no invited users yet.<br />Invite users to evaluate your decision process. You also need to invite yourself if you want to participate in the process.</div>
+		<div class="description empty_note">Your decision process has no invited users yet.<br />Invite users to evaluate your decision process. You also need to invite yourself if you want to participate in the process.</div>
 	{% endfor %}
 </section>
 <section id="uninvited">
@@ -176,15 +177,27 @@
 </section>
 
 {% if completeness.0 == 0 and completeness.1 == 0 %}
+{% if not invited %}
 <ol class="joyride-list" data-joyride>
   <li data-id="firstStop" data-text="Show invitations" data-options="tip_location: bottom; prev_button: false">
     <p>Your decision has no invited users yet.<br />Invite users to evaluate your decision process. You also need to invite yourself if you want to participate in the process.</p>
   </li>
-  <li data-id="uninvited" data-button="Close" data-options="tip_location: top; prev_button: false" data-prev-text="Prev">
+  <li data-id="uninvited" data-options="tip_location: top; prev_button: false; next_button: false;">
     <p>Here you can invite users to participate on the decision process by selecting their expertise in the field of the decision process and clicking the invite button.</p>
   </li>
 </ol>
+{% else %}
+<ol class="joyride-list" data-joyride>
+  <li data-id="firstStop" data-text="Show invitations" data-options="tip_location: bottom; prev_button: false">
+    <p>Your decision has invited users that didn't respond yet.<br />You can see the state of their invites in invitations section. You also need to invite yourself if you want to participate in the process.</p>
+  </li>
+  <li data-id="invited" data-options="tip_location: top; prev_button: false; next_button: false;">
+    <p>Here you can see current user invites and their state.</p>
+  </li>
+</ol>
 {% endif %}
+{% endif %}
+{% endwith %}
 <script>
 	var completeness = {{ completeness.1 }};
 	var remainder = {{ completeness.0 }};
@@ -365,7 +378,9 @@ $(document).ready(function(){
 	{% endfor %}
 });
 
-$(document).foundation('joyride', 'start');
+$(window).load(function(){
+	$(document).foundation('joyride', 'start');
+});
 
 function post(link, event, decision_id, user_id){
 	event.preventDefault();
@@ -383,14 +398,14 @@ function post(link, event, decision_id, user_id){
 	);
 }
 function physicallyRemoveUser(userId){
-		$("#uninvited .spinnerWrapper").fadeOut(300);
-		$("#user_"+userId).hide(function(){
-			$(this).remove();
-			if(!$("#uninvited .itemWrapper").length){
-				$("#uninvited").append("<div class='description empty_note'>No other users to invite.</div>");
-			}
-		});
-	}
+	$("#uninvited .spinnerWrapper").fadeOut(300);
+	$("#user_"+userId).hide(function(){
+		$(this).remove();
+		if(!$("#uninvited .itemWrapper").length){
+			$("#uninvited").append("<div class='description empty_note'>No other users to invite.</div>");
+		}
+	});
+}
 </script>
 {% endwith %}
 {% endblock %}

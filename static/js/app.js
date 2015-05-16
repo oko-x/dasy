@@ -35,7 +35,7 @@ function handleInviteResult(data){
 	handleData(data['message']);
 	var invite_id = data['invite_id'];
 	var accepted = false;
-	if(data = "Invite sent and accepted"){
+	if(data['message'] = "Invite sent and accepted"){
 		accepted = true;
 	}
 	$.get( window.location.href + "users/" + invite_id, function( data ) {
@@ -50,6 +50,9 @@ function handleInviteResult(data){
 			$(this).css("height", $(this).height());
 			$(this).addClass("collapsed");
 		});
+        if(accepted){
+            $("#pairwiseButton").show().trigger("mouseenter");
+        }
 		$("#invited .spinnerWrapper").fadeOut(300);
 	});
 }
