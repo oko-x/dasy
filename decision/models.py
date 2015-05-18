@@ -199,7 +199,7 @@ class Decision(models.Model):
     def getUninvited(self):
         return CustomUser.objects.exclude(invite__decision=self)
     def evaluate(self):
-        votes = self.vote_set.all().select_related('critVarLeft', 'critVarRight', 'user').order_by('id')
+        votes = self.vote_set.all().prefetch_related().order_by('id')
         criterias = self.criteria_variant_set.filter(crit_var=False).order_by('name')
         variants = self.criteria_variant_set.filter(crit_var=True).order_by('name')
         criteriasLength = len(criterias)
