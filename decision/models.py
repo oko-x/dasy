@@ -106,8 +106,6 @@ class Decision(models.Model):
         supermatrixTxt = supermatrixTxt.replace("] [", "\n")
         supermatrixTxt = supermatrixTxt.replace("]]", "")
         supermatrixTxt = supermatrixTxt.replace("[[", "")
-        print supermatrixTxt
-        print self.lastSupermatrix.replace("\n", "")
         supermatrix = np.loadtxt(StringIO(supermatrixTxt))
         critChart = []
         varChart = []
