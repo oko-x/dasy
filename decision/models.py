@@ -132,7 +132,6 @@ class Decision(models.Model):
         votesLen = self.vote_set.count()
         membersLen = self.invite_set.filter(state="AC").count()
         if self.voteChange is False and votesLen == self.lastVotesCount and membersLen == self.lastMembersCount and self.lastCompleteness is not None and self.fullCompleteness is not None:
-            print self.name + " cached"
             if self.fullCompleteness is 0:
                 percentualCompleteness = 0
             else:
