@@ -102,8 +102,12 @@ class Decision(models.Model):
         critLen = len(criterias)
         variants = self.criteria_variant_set.filter(crit_var=True).order_by('name')
         supermatrixTxt = str(self.lastSupermatrix)
-        supermatrixTxt = supermatrixTxt.replace("[", "")
-        supermatrixTxt = supermatrixTxt.replace("]", "")
+        supermatrixTxt = supermatrixTxt.replace("\n", "")
+        supermatrixTxt = supermatrixTxt.replace("] [", "\n")
+        supermatrixTxt = supermatrixTxt.replace("]]", "")
+        supermatrixTxt = supermatrixTxt.replace("[[", "")
+        print supermatrixTxt
+        print self.lastSupermatrix.replace("\n", "")
         supermatrix = np.loadtxt(StringIO(supermatrixTxt))
         critChart = []
         varChart = []
