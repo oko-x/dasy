@@ -20,7 +20,7 @@ def calculatePercentageFromVector(vector):
         result[i] = round(result[i]*100,0)
         count += result[i]
     count -= 100
-    result[0] += count
+    result[0] -= count
     return result
 
 def calcWeightVector(matrix):
