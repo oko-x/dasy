@@ -40,14 +40,28 @@ def calcWeightMatrix(leftArray, topArray, votes, parentCrit = None):
         for j, right in enumerate(topArray):
             if weightMatrix[i,j] == 0:
                 qs = votes.filter(critVarLeft=left, critVarRight=right, parentCrit=parentCrit)
-                valueArray = []
+                
+#                 weighted geometric mean
+                value = 1
+                weights = 0
                 for vote in qs:
-                    for w in range(0, vote.userWeight):
-                        valueArray.append(vote.value)
+                    value *= vote.value**(vote.userWeight/10)
+                    weights += (vote.userWeight/10)
                 if len(qs) > 0:
-                    value = np.median(valueArray)
+                    value = value**(1/weights)
                     weightMatrix[i,j] = value;
-                    weightMatrix[j,i] = 1/value;                
+                    weightMatrix[j,i] = 1/value;     
+                    
+#                 weighted median
+#                 valueArray = []
+#                 for vote in qs:
+#                     for w in range(0, vote.userWeight):
+#                         valueArray.append(vote.value)
+#                 if len(qs) > 0:
+#                     value = np.median(valueArray)
+#                     weightMatrix[i,j] = value;
+#                     weightMatrix[j,i] = 1/value;  
+              
     return weightMatrix
 
 def calcCriteriaWeight(criterias, votes):
