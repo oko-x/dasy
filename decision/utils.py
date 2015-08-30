@@ -45,8 +45,8 @@ def calcWeightMatrix(leftArray, topArray, votes, parentCrit = None):
                 value = 1
                 weights = 0
                 for vote in qs:
-                    value *= vote.value**(vote.userWeight/10)
-                    weights += (vote.userWeight/10)
+                    value *= vote.value**(vote.userWeight/10.0)
+                    weights += (vote.userWeight/10.0)
                 if len(qs) > 0:
                     value = value**(1/weights)
                     weightMatrix[i,j] = value;
