@@ -3,7 +3,6 @@ import os
 import socket
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 AUTH_USER_MODEL = 'decision.CustomUser'
 
 LOGIN_URL = '/app/login/'
@@ -13,6 +12,21 @@ LOGIN_REDIRECT_URL = '/app/'
 # openshift is our PAAS for now.
 ON_PAAS = 'OPENSHIFT_REPO_DIR' in os.environ
 
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -30,8 +44,6 @@ DEBUG = DEBUG or 'DEBUG' in os.environ
 DEBUG = True
 if ON_PAAS and DEBUG:
     print("*** Warning - Debug mode is on ***")
-
-TEMPLATE_DEBUG = True
 
 if ON_PAAS:
     ALLOWED_HOSTS = [os.environ['OPENSHIFT_APP_DNS'], socket.gethostname()]
@@ -69,6 +81,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
 ROOT_URLCONF = 'mysite.urls'
@@ -97,12 +110,9 @@ else:
     # stock django
     DATABASES = {
         'default': {
-            'ENGINE':  'django.db.backends.postgresql_psycopg2',  
-            'NAME':    'decision',
-            'USER':    'adminhh9rze7',
-            'PASSWORD':'hB3VCyByGnH_',
-            'HOST':    'localhost',
-            'PORT':    '63911',
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': 'C:/data.sqlite3',
+            'DATABASE_NAME': 'decision',
         }
     }
 
@@ -138,7 +148,4 @@ STATICFILES_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
     os.path.join(BASE_DIR,"static"),
 )
-from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS
-TEMPLATE_CONTEXT_PROCESSORS += ( 
-'django.core.context_processors.request',)
 

@@ -1,3 +1,4 @@
-django==1.8
-numpy
-Pillow
+Django==1.11.5
+numpy==1.9.2rc1
+Pillow==2.7.0
+django-debug-toolbar==1.8

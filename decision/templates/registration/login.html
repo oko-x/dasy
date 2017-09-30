@@ -6,7 +6,7 @@
 <section>
 <h2 class="widgetHeader center">Login using your account or <a href="{% url 'user_add' %}">register</a></h2>
 	
-<form method="post" class="loginForm" action="{% url 'django.contrib.auth.views.login' %}">
+<form method="post" class="loginForm" action="{% url 'login' %}">
 {% csrf_token %}
 <div class="row">
 	<div class="columns medium-6 medium-offset-3">

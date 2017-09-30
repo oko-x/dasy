@@ -1,10 +1,10 @@
-from django.conf.urls import patterns, url, include
+from django.conf.urls import url, include
 
 from decision import views
 from decision.views import Index
 
 
-urlpatterns = patterns('',
+urlpatterns = [
     # Examples:
     # url(r'^$', 'mysite.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
@@ -23,4 +23,4 @@ urlpatterns = patterns('',
     url(r'^vote/add/$', views.voteAdd, name='vote_add'),
     url(r'^registration/$', views.UserCreateView.as_view(), name='user_add'),
     url('^', include('django.contrib.auth.urls'))
-)
+]
