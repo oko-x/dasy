@@ -1,4 +1,4 @@
 Django==1.11.5
-numpy==1.9.2rc1
-Pillow==2.7.0
+numpy==1.13.3
+Pillow==4.2.1
 django-debug-toolbar==1.8
