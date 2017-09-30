@@ -10,7 +10,7 @@ LOGOUT_URL = '/app/logout/'
 LOGIN_REDIRECT_URL = '/app/'
 
 # openshift is our PAAS for now.
-ON_PAAS = 'OPENSHIFT_REPO_DIR' in os.environ
+ON_PAAS = 'DATABASE_SERVICE_NAME' in os.environ
 
 TEMPLATES = [
     {
@@ -94,16 +94,10 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 if ON_PAAS:
     # determine if we are on MySQL or POSTGRESQL
 
-    
+    from . import database
+
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',  
-            'NAME':     os.environ['OPENSHIFT_APP_NAME'],
-            'USER':     os.environ['OPENSHIFT_POSTGRESQL_DB_USERNAME'],
-            'PASSWORD': os.environ['OPENSHIFT_POSTGRESQL_DB_PASSWORD'],
-            'HOST':     os.environ['OPENSHIFT_POSTGRESQL_DB_HOST'],
-            'PORT':     os.environ['OPENSHIFT_POSTGRESQL_DB_PORT'],
-        }
+        'default': database.config()
     }
         
 else:
