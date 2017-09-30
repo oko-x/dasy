@@ -10,7 +10,7 @@ LOGOUT_URL = '/app/logout/'
 LOGIN_REDIRECT_URL = '/app/'
 
 # openshift is our PAAS for now.
-ON_PAAS = 'DATABASE_SERVICE_NAME' in os.environ
+ON_PAAS = 'OPENSHIFT_SERVER' in os.environ
 
 TEMPLATES = [
     {
@@ -41,7 +41,6 @@ else:
 # adjust to turn off when on Openshift, but allow an environment variable to override on PAAS
 DEBUG = not ON_PAAS
 DEBUG = DEBUG or 'DEBUG' in os.environ
-DEBUG = True
 if ON_PAAS and DEBUG:
     print("*** Warning - Debug mode is on ***")
 
@@ -94,10 +93,18 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 if ON_PAAS:
     # determine if we are on MySQL or POSTGRESQL
 
-    from . import database
+    # from . import database
+
+    # DATABASES = {
+    #     'default': database.config()
+    # }
 
     DATABASES = {
-        'default': database.config()
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': 'data.sqlite3',
+            'DATABASE_NAME': 'decision',
+        }
     }
         
 else:
