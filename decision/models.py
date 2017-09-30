@@ -11,6 +11,7 @@ from django.db.models.fields import CharField, BooleanField, DateField, IntegerF
 from django.db.models.fields.files import ImageField
 from django.db.models.fields.related import ForeignKey
 from django.utils.timezone import now
+import datetime
 
 from decision.utils import calcCriteriaWeight, calcVariantsWeightRespectToCriteria, \
     calcCriteriasWeightRespectToVariant, nCr, calculatePercentageFromVector
@@ -155,7 +156,7 @@ class Decision(models.Model):
         self.lastMembersCount = membersLen
         self.voteChange = False
         self.save()
-        decisionValue = DecisionValue.objects.filter(decision=self, date=now)
+        decisionValue = DecisionValue.objects.filter(decision=self, date=datetime.datetime.now())
         if not decisionValue:
             decisionValue = DecisionValue(decision=self, votes=votesLen, lastResult=self.lastResult)
         else:
