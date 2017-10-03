@@ -102,8 +102,7 @@ if ON_PAAS:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': 'data.sqlite3',
-            'DATABASE_NAME': 'decision',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
     }
         
@@ -112,8 +111,7 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': 'C:/data.sqlite3',
-            'DATABASE_NAME': 'decision',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
     }
 
